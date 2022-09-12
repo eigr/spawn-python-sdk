@@ -21,6 +21,7 @@ action_handler = Blueprint(
 def action(name: str, system: str):
     data = request.data
     logging.info('Received Actor action request: %s', data)
+    
     # Decode request payload data here and call python real actors methods.
     invocation = Invocation.ParseFromString(data)
     logging.debug('Actor invocation data: %s', invocation)
