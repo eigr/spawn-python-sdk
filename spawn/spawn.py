@@ -9,7 +9,7 @@ from dataclasses import (dataclass, field)
 from typing import List
 
 from actor_entity import ActorEntity
-from internal.spawn_actor_controller import SpawnActorController as ActorController
+from internal.controller import SpawnActorController as ActorController
 
 import os
 import logging
@@ -17,7 +17,10 @@ import logging
 
 @dataclass
 class Spawn:
-    actorController = ActorController()
+    actorController = ActorController(
+        os.environ.get('PROXY_HOST', 'localhost'),
+        os.environ.get('PROXY_PORT', '9001'),
+    )
 
     logging.basicConfig(
         format='%(asctime)s - %(filename)s - %(levelname)s: %(message)s', level=logging.INFO)
@@ -54,9 +57,9 @@ class Spawn:
             app.run(host=self.__host, port=self.__port, debug=True)
 
             # Invoke proxy for register ActorsEntity using Spawn protobuf types
-            self.__invoke(self.__actors)
+            self.__register(self.__actors)
         except IOError as e:
             logging.error('Error on start Spawn %s', e.__cause__)
 
-    def __invoke(self, actors: List[ActorEntity]):
+    def __register(self, actors: List[ActorEntity]):
         self.actorController.register(actors)
