@@ -2,7 +2,7 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from actor_entity import ActorEntity
+from entity import ActorEntity
 from eigr.functions.protocol.actors.actor_pb2 import Actor
 from eigr.functions.protocol.actors.actor_pb2 import ActorState
 from eigr.functions.protocol.actors.actor_pb2 import ActorDeactivateStrategy

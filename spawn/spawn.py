@@ -8,7 +8,7 @@ from routes.action import action_endpoint
 from dataclasses import (dataclass, field)
 from typing import List
 
-from actor_entity import ActorEntity
+from entity import ActorEntity
 from internal.controller import SpawnActorController as ActorController
 
 import os

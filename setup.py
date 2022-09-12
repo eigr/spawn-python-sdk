@@ -19,7 +19,7 @@ name = "spawn"
 
 print(f"package name: {name}, version: {version}", flush=True)
 
-proto_lib_roots = ["protobuf/lib"]
+proto_lib_roots = ["protobuf"]
 proto_roots = ["."]
 
 
