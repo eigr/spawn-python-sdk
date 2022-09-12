@@ -5,19 +5,26 @@ from flask import Flask
 from routes.action import action_endpoint
 
 from dataclasses import (dataclass, field)
-import os
+from typing import List
 
+from actor_entity import ActorEntity
+from internal.spawn_actor_controller import SpawnActorController as ActorController
+
+import os
 import logging
 
 
 @dataclass
 class Spawn:
+    actorController = ActorController()
+
     logging.basicConfig(
         format='%(asctime)s - %(filename)s - %(levelname)s: %(message)s', level=logging.INFO)
     logging.root.setLevel(logging.NOTSET)
 
     __host = '127.0.0.1'
     __port = '8090'
+    __actors: List[ActorEntity] = field(default_factory=list)
 
     def host(self, address: str):
         """Set the Network Host address."""
@@ -29,6 +36,11 @@ class Spawn:
         self.__port = port
         return self
 
+    def register_actor(self, entity: ActorEntity):
+        """Registry the user Actor entity."""
+        self.__actors.append(entity)
+        return self
+
     def start(self):
         """Start the user function and HTTP Server."""
         address = '{}:{}'.format(os.environ.get(
@@ -37,7 +49,14 @@ class Spawn:
         logging.info('Starting Spawn on address %s', address)
         try:
             app = Flask(__name__)
-            app.register_blueprint(action_endpoint)
+            app.register_blueprint(action_endpoint, url_prefix='/api/v1')
             app.run(host=self.__host, port=self.__port, debug=True)
+
+            # Invoke proxy for register ActorsEntity using Spawn protobuf types
+
+            self.__invoke(self.__actors)
         except IOError as e:
             logging.error('Error on start Spawn %s', e.__cause__)
+
+    def __invoke(self, actors: List[ActorEntity]):
+        self.actorController.register(actors)

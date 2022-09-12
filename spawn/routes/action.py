@@ -13,10 +13,11 @@ action_endpoint = Blueprint(
     'action_endpoint', __name__, template_folder='templates')
 
 
-@action_endpoint.route('/api/v1/system/<string:system>/actors/<string:name>/invoke', methods=["POST"])
+@action_endpoint.route('/system/<string:system>/actors/<string:name>/invoke', methods=["POST"])
 def action(name: str, system: str):
     data = request.data
     logging.info('Received Actor action request: %s', data)
-    # Decode request payload data here and call python real actors methods
+    # Decode request payload data here and call python real actors methods.
+    # Then send ActorInvocationResponse back to the caller
 
     return 'Hello, World!'
