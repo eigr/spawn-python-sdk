@@ -10,7 +10,12 @@ from dataclasses import dataclass, field
 class JoeActor(ActorInit):
 
     def init() -> ActorParams:
-        return ActorParams('joe', "", 10000, 30000)
+        return ActorParams(
+            name='joe',
+            state_type="",
+            snapshot_timeout=10000,
+            deactivate_timeout=30000
+        )
 
     entity = ActorEntity(init)
 
