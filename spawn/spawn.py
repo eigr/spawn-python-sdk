@@ -3,6 +3,7 @@ Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
 from flask import Flask
+
 from routes.action import action_endpoint
 
 from dataclasses import (dataclass, field)
