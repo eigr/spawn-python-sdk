@@ -74,8 +74,8 @@ class Spawn:
         logging.info('Starting Spawn on address %s', address)
         try:
             app = Flask(__name__)
-            app.register_blueprint(action_endpoint, url_prefix='/api/v1')
-            app.run(host=self.__host, port=self.__port, debug=True)
+            app.register_blueprint(action_endpoint)
+            app.run(host=self.__host, port=self.__port, threaded = True, debug=True)
 
             # Invoke proxy for register ActorsEntity using Spawn protobuf types
             self.__register(self.__actors)
