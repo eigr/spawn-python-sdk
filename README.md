@@ -1,4 +1,5 @@
 # Spawn Python SDK
+
 Python User Language Support for [Spawn](https://github.com/eigr/spawn).
 
 ## Installation via source
@@ -17,12 +18,12 @@ Python 3.7.3
 > pip install .
 ```
 
-### generate installer
+### Generate installer
 ```
 python setup.py bdist_wheel
 ```
 
-### local install
+### Local install
 ```
 python -m pip install dist/spawn-python-sdk-0.1.0-py3-none-any.whl
 ```
