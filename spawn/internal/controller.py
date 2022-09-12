@@ -2,7 +2,7 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from entity import ActorEntity
+from sdk import ActorEntity
 from eigr.functions.protocol.actors.actor_pb2 import Actor
 from eigr.functions.protocol.actors.actor_pb2 import ActorState
 from eigr.functions.protocol.actors.actor_pb2 import ActorDeactivateStrategy
@@ -75,6 +75,7 @@ class SpawnActorController:
         service_info.service_runtime = 'Python ' + platform.python_version() + \
             ' [' + platform.python_implementation() + ' ' + \
             platform.python_compiler() + ']'
+
         service_info.support_library_name = 'spawn-python-sdk'
         service_info.support_library_version = '0.1.0'
         service_info.protocol_major_version = 1
