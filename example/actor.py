@@ -1,4 +1,4 @@
-from entity import ActorEntity
+from spawn.sdk import ActorEntity
 from dataclasses import dataclass
 
 
