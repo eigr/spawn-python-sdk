@@ -17,5 +17,6 @@ action_endpoint = Blueprint(
 def action(name: str, system: str):
     data = request.data
     logging.info('Received Actor action request: %s', data)
+    # Decode request payload data here and call python real actors methods
 
     return 'Hello, World!'
