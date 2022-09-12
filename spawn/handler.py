@@ -13,11 +13,11 @@ from eigr.functions.protocol.actors.protocol_pb2 import Context
 import io
 import logging
 
-action_endpoint = Blueprint(
+action_handler = Blueprint(
     'action_endpoint', __name__, url_prefix='/api/v1')
 
 
-@action_endpoint.route('/system/<string:system>/actors/<string:name>/invoke', methods=["POST"])
+@action_handler.route('/system/<string:system>/actors/<string:name>/invoke', methods=["POST"])
 def action(name: str, system: str):
     data = request.data
     logging.info('Received Actor action request: %s', data)

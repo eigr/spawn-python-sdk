@@ -4,13 +4,13 @@ Licensed under the Apache License, Version 2.0.
 """
 from flask import Flask
 
-from routes.action import action_endpoint
-
 from dataclasses import (dataclass, field)
+
+from handler import action_handler
+from internal.controller import SpawnActorController as ActorController
+
 from typing import List, Callable, Any, Mapping, MutableMapping
 import inspect
-
-from internal.controller import SpawnActorController as ActorController
 
 import os
 import logging
@@ -74,7 +74,7 @@ class Spawn:
         logging.info('Starting Spawn on address %s', address)
         try:
             app = Flask(__name__)
-            app.register_blueprint(action_endpoint)
+            app.register_blueprint(action_handler)
             app.run(host=self.__host, port=self.__port, threaded = True, debug=True)
 
             # Invoke proxy for register ActorsEntity using Spawn protobuf types
