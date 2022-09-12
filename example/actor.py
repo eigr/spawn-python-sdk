@@ -2,14 +2,18 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from spawn.sdk import ActorEntity
-from dataclasses import dataclass
+from curses.ascii import NUL
+from spawn.sdk import ActorEntity, ActorInit, ActorParams
+from dataclasses import dataclass, field
 
 
 @dataclass
-class JoeActorEntity:
+class JoeActor(ActorInit):
 
-    entity = ActorEntity()
+    def init() -> ActorParams:
+        return ActorParams('joe', NUL, 10000, 30000)
+
+    entity = ActorEntity(init)
 
     @entity.command()
     def get():
