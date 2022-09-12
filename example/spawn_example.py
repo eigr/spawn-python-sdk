@@ -2,7 +2,7 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from spawn import Spawn
+from spawn.sdk import Spawn
 from actor import entity as actor_entity
 
 

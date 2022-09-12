@@ -1,7 +1,5 @@
-
-from dataclasses import dataclass, field
-
 from entity import ActorEntity
+from dataclasses import dataclass
 
 
 @dataclass
