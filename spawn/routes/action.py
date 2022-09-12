@@ -1,3 +1,6 @@
+"""
+Licensed under the Apache License, Version 2.0.
+"""
 from flask import Blueprint, request
 
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2

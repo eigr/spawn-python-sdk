@@ -1,4 +1,5 @@
 """
+Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
 from flask import Flask
@@ -53,7 +54,6 @@ class Spawn:
             app.run(host=self.__host, port=self.__port, debug=True)
 
             # Invoke proxy for register ActorsEntity using Spawn protobuf types
-
             self.__invoke(self.__actors)
         except IOError as e:
             logging.error('Error on start Spawn %s', e.__cause__)
