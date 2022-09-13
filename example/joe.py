@@ -3,7 +3,12 @@ Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
 from spawn.sdk import ActorEntity, ActorInit, ActorParams
-from dataclasses import dataclass, field
+
+from eigr.functions.spawn.example.state.joe_pb2 import JoeState
+from eigr.functions.spawn.example.messages.messages_pb2 import Request
+from eigr.functions.spawn.example.messages.messages_pb2 import Reply
+
+from dataclasses import dataclass
 
 
 @dataclass
@@ -12,7 +17,7 @@ class JoeActor(ActorInit):
     def init() -> ActorParams:
         return ActorParams(
             name='joe',
-            state_type="",
+            state_type=JoeState,
             snapshot_timeout=10000,
             deactivate_timeout=30000
         )
@@ -20,5 +25,9 @@ class JoeActor(ActorInit):
     entity = ActorEntity(init)
 
     @entity.command()
-    def get():
+    def get_actual_state():
+        return ""
+
+    @entity.command()
+    def set_language(self, req: Request):
         return ""

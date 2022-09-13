@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package eigr.functions.spawn.example.state;
+
+option java_multiple_files = true;
+option java_package = "eigr.functions.spawn.example.state";
+option java_outer_classname = "JoeStateStateProto";
+
+message JoeState {
+  repeated string languages = 1;
+}
