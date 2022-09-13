@@ -2,7 +2,7 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from spawn.sdk import ActorEntity, ActorInit, ActorParams
+from spawn.entity import ActorEntity, ActorInit, ActorParams
 
 from eigr.state.joe_pb2 import JoeState
 from eigr.messages.messages_pb2 import Request
