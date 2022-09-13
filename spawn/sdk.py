@@ -6,6 +6,7 @@ from flask import Flask
 
 from dataclasses import dataclass, field
 
+from spawn.entity import ActorEntity
 from spawn.handler import action_handler
 from spawn.controller import SpawnActorController as ActorController
 
@@ -14,7 +15,6 @@ import inspect
 
 import os
 import logging
-
 
 
 @dataclass
