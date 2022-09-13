@@ -6,8 +6,6 @@ from flask import Flask
 
 from dataclasses import dataclass, field
 
-from grpc import server
-
 from spawn.entity import ActorEntity
 from spawn.handler import action_handler
 from spawn.controller import SpawnActorController as ActorController
@@ -39,7 +37,6 @@ class Spawn:
         os.environ.get("PROXY_HOST", "localhost"),
         os.environ.get("PROXY_PORT", "9001"),
     )
-
 
     def host(self, address: str):
         """Set the Network Host address."""
