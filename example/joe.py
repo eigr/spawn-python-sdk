@@ -2,15 +2,15 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
+from dataclasses import dataclass
 from domain.domain_pb2 import JoeState, Request
 from spawn.entity import ActorEntity, ActorInit, ActorParams
-
-from dataclasses import dataclass
 
 
 @dataclass
 class JoeActor(ActorInit):
 
+    # TODO: Remove this because it´s a bad design. Correct is extract this to superior Class
     def init() -> ActorParams:
         return ActorParams(
             name='joe',

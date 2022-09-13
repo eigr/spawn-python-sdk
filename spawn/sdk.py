@@ -38,6 +38,9 @@ class Spawn:
         os.environ.get("PROXY_PORT", "9001"),
     )
 
+    def invoke(self, name: str, command: str, arg: Any, output_type: Any) -> Any:
+        self.__actorController.invoke(name, command, arg, output_type)
+
     def host(self, address: str):
         """Set the Network Host address."""
         self.__host = address

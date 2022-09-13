@@ -11,7 +11,7 @@ import logging
 import platform
 import requests
 
-from typing import List
+from typing import Any, List
 
 
 class SpawnActorController:
@@ -26,6 +26,9 @@ class SpawnActorController:
     def __init__(self, host: str, port: str):
         self.host = host
         self.port = port
+
+    def invoke(self, actor_name: str, actor_command: str, arg: Any, output_type: Any) -> Any:
+        return ""
 
     def register(self, actors: List[ActorEntity]):
         logging.info('Registering Actors on the Proxy %s', actors)
