@@ -4,11 +4,11 @@ Licensed under the Apache License, Version 2.0.
 """
 from flask import Blueprint, request, send_file
 
-from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
+#from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
-from eigr.functions.protocol.actors.protocol_pb2 import ActorInvocation as Invocation
-from eigr.functions.protocol.actors.protocol_pb2 import ActorInvocationResponse as InvocationResponse
-from eigr.functions.protocol.actors.protocol_pb2 import Context
+from eigr.protocol_pb2 import ActorInvocation as Invocation
+from eigr.protocol_pb2 import ActorInvocationResponse as InvocationResponse
+from eigr.protocol_pb2 import Context
 
 import io
 import logging

@@ -96,9 +96,9 @@
 //
 syntax = "proto3";
 
-package eigr.functions.protocol;
+package eigr.protocol;
 
-import "eigr/functions/protocol/actors/actor.proto";
+import "eigr/actor.proto";
 import "google/protobuf/any.proto";
 
 option java_package = "io.eigr.functions.protocol";
@@ -108,7 +108,7 @@ message RegistrationRequest {
 
     ServiceInfo service_info = 1;
 
-    eigr.functions.protocol.actors.ActorSystem actor_system = 2;
+    eigr.actors.ActorSystem actor_system = 2;
 }
 
 message ServiceInfo {
@@ -177,9 +177,9 @@ message Context {
 //            or whether the command should be processed asynchronously, i.e. no response sent to the caller and no waiting.
 message InvocationRequest {
 
-    eigr.functions.protocol.actors.ActorSystem system =1;
+    eigr.actors.ActorSystem system =1;
 
-    eigr.functions.protocol.actors.Actor actor = 2;
+    eigr.actors.Actor actor = 2;
 
     string command_name = 3;
 
@@ -244,9 +244,9 @@ message InvocationResponse {
 
     RequestStatus status = 1;
 
-    eigr.functions.protocol.actors.ActorSystem system = 2;
+    eigr.actors.ActorSystem system = 2;
 
-    eigr.functions.protocol.actors.Actor actor = 3;
+    eigr.actors.Actor actor = 3;
 
     google.protobuf.Any value = 4;
 }

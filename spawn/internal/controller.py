@@ -3,15 +3,9 @@ Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
 from sdk import ActorEntity
-from eigr.functions.protocol.actors.actor_pb2 import Actor
-from eigr.functions.protocol.actors.actor_pb2 import ActorState
-from eigr.functions.protocol.actors.actor_pb2 import ActorDeactivateStrategy
-from eigr.functions.protocol.actors.actor_pb2 import ActorSnapshotStrategy
-from eigr.functions.protocol.actors.actor_pb2 import ActorSystem
-from eigr.functions.protocol.actors.actor_pb2 import TimeoutStrategy
-from eigr.functions.protocol.actors.actor_pb2 import Registry
-from eigr.functions.protocol.actors.protocol_pb2 import RegistrationRequest
-from eigr.functions.protocol.actors.protocol_pb2 import ServiceInfo
+from eigr.actor_pb2 import Actor, ActorState, ActorDeactivateStrategy, ActorSnapshotStrategy, ActorSystem
+from eigr.actor_pb2 import TimeoutStrategy, Registry
+from eigr.protocol_pb2 import RegistrationRequest, ServiceInfo
 
 import logging
 import platform

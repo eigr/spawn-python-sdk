@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package eigr.functions.spawn.example.state;
+package eigr.state;
 
 option java_multiple_files = true;
 option java_package = "eigr.functions.spawn.example.state";

@@ -4,9 +4,9 @@ Licensed under the Apache License, Version 2.0.
 """
 from spawn.sdk import ActorEntity, ActorInit, ActorParams
 
-from eigr.functions.spawn.example.state.joe_pb2 import JoeState
-from eigr.functions.spawn.example.messages.messages_pb2 import Request
-from eigr.functions.spawn.example.messages.messages_pb2 import Reply
+from eigr.state.joe_pb2 import JoeState
+from eigr.messages.messages_pb2 import Request
+from eigr.messages.messages_pb2 import Reply
 
 from dataclasses import dataclass
 
