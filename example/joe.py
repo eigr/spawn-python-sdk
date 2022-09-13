@@ -2,11 +2,8 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
+from domain.domain_pb2 import JoeState, Request
 from spawn.entity import ActorEntity, ActorInit, ActorParams
-
-from eigr.state.joe_pb2 import JoeState
-from eigr.messages.messages_pb2 import Request
-from eigr.messages.messages_pb2 import Reply
 
 from dataclasses import dataclass
 
@@ -24,10 +21,10 @@ class JoeActor(ActorInit):
 
     entity = ActorEntity(init)
 
-    @entity.command()
+    #@entity.command("get_actual_state")
     def get_actual_state():
         return ""
 
-    @entity.command()
+    #@entity.command("set_language")
     def set_language(self, req: Request):
         return ""

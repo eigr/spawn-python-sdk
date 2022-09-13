@@ -65,7 +65,7 @@ setup(
         "grpcio>=1.48.1",
         "grpcio-tools>=1.0.0",
         "flask>=2.1.3",
-        "protobuf>=4.21.3",
+        "protobuf>=3.20.0",
         "pytest>=7.1.2",
         "docker",
     ],

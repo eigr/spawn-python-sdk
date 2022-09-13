@@ -8,5 +8,4 @@ set -o pipefail
 python3 -m grpc_tools.protoc -I ../protobuf/ --python_out=../spawn eigr/actor.proto
 python3 -m grpc_tools.protoc -I ../protobuf/ --python_out=../spawn eigr/protocol.proto
 
-python3 -m grpc_tools.protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/eigr/messages/messages.proto
-python3 -m grpc_tools.protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/eigr/state/joe.proto
+python3 -m grpc_tools.protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/domain/domain.proto

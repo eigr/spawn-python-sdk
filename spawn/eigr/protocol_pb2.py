@@ -12,7 +12,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from eigr import actor_pb2 as eigr_dot_actor__pb2
+from . import actor_pb2 as eigr_dot_actor__pb2
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 

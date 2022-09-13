@@ -1,1 +1,0 @@
-The protobuf files can be fetched using scripts/fetch-spawn-pb.sh
