@@ -41,7 +41,7 @@ class SpawnActorController:
             deactivate_timeout_strategy.timeout = 10000
 
             snaphot_timeout_strategy = TimeoutStrategy()
-            snaphot_timeout_strategy.timeout = 30000
+            snaphot_timeout_strategy.timeout = 120000
 
             actor_state = ActorState()
 
@@ -62,7 +62,7 @@ class SpawnActorController:
             registry.actors.get_or_create("user_actor_01").CopyFrom(actor_01)
 
             actor_system = ActorSystem()
-            actor_system.name = 'spawn_sys_test'
+            actor_system.name = 'spawn-system'
             actor_system.registry.CopyFrom(registry)
 
             service_info = ServiceInfo()

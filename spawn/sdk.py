@@ -28,14 +28,14 @@ class Spawn:
     )
     logging.root.setLevel(logging.NOTSET)
 
-    __host = "127.0.0.1"
-    __port = "8090"
+    __host = os.environ.get("HOST", "0.0.0.0")
+    __port = os.environ.get("PORT", "8091")
     __actors: List[ActorEntity] = field(default_factory=list)
     __app = Flask(__name__)
     __is_debug_enable = json.loads(os.environ.get("SDK_DEBUG_ENABLE", "false").lower())
     __actorController = ActorController(
         os.environ.get("PROXY_HOST", "localhost"),
-        os.environ.get("PROXY_PORT", "9001"),
+        os.environ.get("PROXY_PORT", "9002"),
     )
 
     def invoke(self, name: str, command: str, arg: Any, output_type: Any) -> Any:
@@ -58,9 +58,7 @@ class Spawn:
 
     def start(self):
         """Start the user function and HTTP Server."""
-        address = "{}:{}".format(
-            os.environ.get("HOST", self.__host), os.environ.get("PORT", self.__port)
-        )
+        address = "{}:{}".format(self.__host, self.__port)
 
         server = threading.Thread(target=self.__start_server, daemon=True, args=(action_handler,))
         logging.info("Starting Spawn on address %s", address)
@@ -79,5 +77,5 @@ class Spawn:
         self.__actorController.register(actors)
 
     def __start_server(self, handler):
-        self.__app.register_blueprint(handler)
+        self.__app.register_blueprint(handler, url_prefix='/api/v1')
         self.__app.run(host=self.__host, port=self.__port, use_reloader=False, debug=self.__is_debug_enable)

@@ -16,7 +16,7 @@ class JoeActor(ActorInit):
             name='joe',
             state_type=JoeState,
             snapshot_timeout=10000,
-            deactivate_timeout=30000
+            deactivate_timeout=120000
         )
 
     entity = ActorEntity(init)
