@@ -4,9 +4,14 @@ Licensed under the Apache License, Version 2.0.
 """
 from spawn.sdk import Spawn
 from example.joe import JoeActor 
+from example.domain.domain_pb2 import Reply, Request
 
 if __name__ == '__main__':
-    spawn = Spawn()\
+    #request = Request()
+    #request.language = "erlang"
+    #Spawn.invoke("joe", "setLanguage", request, Reply)
+
+    Spawn()\
         .port('8091')\
         .register_actor(JoeActor.entity)\
         .start()

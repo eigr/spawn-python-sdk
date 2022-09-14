@@ -21,10 +21,10 @@ class JoeActor(ActorInit):
 
     entity = ActorEntity(init)
 
-    #@entity.command("get_actual_state")
+    @entity.command("get_actual_state")
     def get_actual_state():
         return ""
 
-    #@entity.command("set_language")
+    @entity.command("setLanguage")
     def set_language(self, req: Request):
         return ""
