@@ -3,8 +3,8 @@ Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
 from dataclasses import dataclass
-from domain.domain_pb2 import JoeState, Request
-from spawn.entity import ActorEntity, ActorInit, ActorParams
+from domain.domain_pb2 import JoeState, Request, Reply
+from spawn.entity import ActorContext, ActorEntity, ActorInit, ActorParams, Value
 
 
 @dataclass
@@ -21,10 +21,16 @@ class JoeActor(ActorInit):
 
     entity = ActorEntity(init)
 
-    @entity.command("get_actual_state")
-    def get_actual_state():
-        return ""
+    @entity.command("getActualState")
+    def get_actual_state(self, ctx: ActorContext[JoeState]) -> Value:
+        current_state = ctx.state
+        new_value = current_state
+        return Value(current_state, new_value)
 
     @entity.command("setLanguage")
-    def set_language(self, req: Request):
-        return ""
+    def set_language(self, req: Request, ctx: ActorContext[JoeState]) -> Value:
+        reply = Reply()
+        reply.response = "elf"
+
+        new_state = ctx.state.languages.extend("elf")
+        return Value(new_state, reply)

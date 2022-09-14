@@ -4,8 +4,19 @@ Licensed under the Apache License, Version 2.0.
 """
 from dataclasses import dataclass, field
 
-from typing import Callable, Any, MutableMapping
+from typing import Any, Callable, MutableMapping, TypeVar, Generic
 
+S = TypeVar('S')
+V = TypeVar('V')
+
+@dataclass
+class ActorContext:
+    state: Generic[S]
+
+@dataclass
+class Value:
+    state: Generic[S]
+    value: Generic[V]
 
 @dataclass
 class ActorParams:
