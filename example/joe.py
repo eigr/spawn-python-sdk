@@ -21,16 +21,16 @@ class JoeActor(ActorInit):
 
     entity = ActorEntity(init)
 
-    @entity.command("getActualState")
-    def get_actual_state(self, ctx: ActorContext[JoeState]) -> Value:
-        current_state = ctx.state
-        new_value = current_state
-        return Value(current_state, new_value)
+    # @entity.command("getActualState")
+    # def get_actual_state(self, ctx: ActorContext[JoeState]) -> Value[JoeState, JoeState]:
+    #     current_state = ctx.state
+    #     new_value = current_state
+    #     return Value(current_state, new_value)
 
-    @entity.command("setLanguage")
-    def set_language(self, req: Request, ctx: ActorContext[JoeState]) -> Value:
-        reply = Reply()
-        reply.response = "elf"
+    # @entity.command("setLanguage")
+    # def set_language(self, req: Request, ctx: ActorContext[JoeState]) -> Value[JoeState, Reply]:
+    #     reply = Reply()
+    #     reply.response = "elf"
 
-        new_state = ctx.state.languages.extend("elf")
-        return Value(new_state, reply)
+    #     new_state = ctx.state.languages.extend("elf")
+    #     return Value(new_state, reply)

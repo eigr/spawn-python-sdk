@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 
 from typing import Any, Callable, MutableMapping, TypeVar, Generic
 
-S = TypeVar('S')
-V = TypeVar('V')
+S = TypeVar("S")
+V = TypeVar("V")
 
 @dataclass
 class ActorContext:
