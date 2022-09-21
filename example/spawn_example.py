@@ -9,7 +9,6 @@ from example.domain.domain_pb2 import Reply, Request
 if __name__ == "__main__":
     request = Request()
     request.language = "erlang"
-    # Spawn.invoke("joe", "setLanguage", request, Reply)
 
     spawn = Spawn()
     spawn.port("8091").register_actor(JoeActor.entity).start()
