@@ -65,7 +65,7 @@ class Spawn:
         """Start the user function and HTTP Server."""
         address = "{}:{}".format(self.__host, self.__port)
 
-        server = threading.Thread(target=self.__start_server, daemon=True, args=(action_handler,))
+        server = threading.Thread(target=lambda: self.__start_server(action_handler))
         logging.info("Starting Spawn on address %s", address)
         try:
             server.start()
@@ -75,12 +75,14 @@ class Spawn:
         except IOError as e:
             logging.error("Error on start Spawn %s", e.__cause__)
 
-        while True:
-            time.sleep(1)
-
     def __register(self, actors: List[ActorEntity]):
         self.__actorController.register(actors)
 
     def __start_server(self, handler):
-        self.__app.register_blueprint(handler, url_prefix='/api/v1')
-        self.__app.run(host=self.__host, port=self.__port, use_reloader=False, debug=self.__is_debug_enable)
+        self.__app.register_blueprint(handler, url_prefix="/api/v1")
+        self.__app.run(
+            host=self.__host,
+            port=self.__port,
+            use_reloader=False,
+            debug=self.__is_debug_enable,
+        )
