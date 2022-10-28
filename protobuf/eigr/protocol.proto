@@ -104,6 +104,14 @@ import "google/protobuf/any.proto";
 option java_package = "io.eigr.functions.protocol";
 option go_package = "github.com/eigr/go-support/eigr/protocol;protocol";
 
+message SpawnRequest {
+    eigr.actors.ActorSystem actor_system = 2;
+}
+
+message SpawnResponse {
+    RequestStatus status = 1;
+}
+
 message RegistrationRequest {
 
     ServiceInfo service_info = 1;
@@ -144,7 +152,7 @@ message ProxyInfo {
     int32 protocol_minor_version = 2;
 
     string proxy_name = 3;
-
+    
     string proxy_version = 4;
 }
 
@@ -155,14 +163,76 @@ message RegistrationResponse {
     ProxyInfo proxy_info = 2;
 }
 
-// Context is where current and/or updated state is stored
+// Context is where current and/or updated state is stored 
 // to be transmitted to/from proxy and user function
 //
 // Params:
-//   * state: Actor state passed back and forth between proxy and user function.
+//   * state: Actor state passed back and forth between proxy and user function. 
 message Context {
 
     google.protobuf.Any state = 1;
+}
+
+// When a Host Function is invoked it returns the updated state and return value to the call. 
+// It can also return a number of side effects to other Actors as a result of its computation. 
+// These side effects will be forwarded to the respective Actors asynchronously and should not affect the Host Function's response to its caller.
+// Internally side effects is just a special kind of InvocationRequest.
+// Useful for handle handle `recipient list` and `Composed Message Processor` patterns:
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/RecipientList.html
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/DistributionAggregate.html
+message SideEffect {
+    InvocationRequest request = 1;
+}
+
+// Broadcast a message to many Actors
+// Useful for handle `recipient list`, `publish-subscribe channel`, and `scatter-gatther` patterns:
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/RecipientList.html
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/PublishSubscribeChannel.html
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/BroadcastAggregate.html
+message Broadcast {
+    // Channel of target Actors
+    string channel_group = 1;
+
+    // Command. Only Actors that have this command will run successfully
+    string command_name = 2;
+
+    // Payload
+    google.protobuf.Any value = 3;
+}
+
+// Sends the output of a command of an Actor to the input of another command of an Actor
+// Useful for handle `pipes` pattern:
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/PipesAndFilters.html
+message Pipe {
+  // Target Actor
+  string actor = 1;
+
+  // Command. 
+  string command_name = 2;
+}
+
+// Sends the input of a command of an Actor to the input of another command of an Actor
+// Useful for handle `content-basead router` pattern
+// https://www.enterpriseintegrationpatterns.com/patterns/messaging/ContentBasedRouter.html
+message Forward {
+  // Target Actor
+  string actor = 1;
+
+  // Command. 
+  string command_name = 2;
+}
+
+// Container for archicetural message patterns 
+message Workflow {
+    
+    Broadcast broadcast = 2;
+
+    repeated SideEffect effects = 1;
+
+    oneof routing {
+        Pipe pipe = 3;
+        Forward forward = 4;
+    }
 }
 
 // The user function when it wants to send a message to an Actor uses the InvocationRequest message type.
@@ -170,14 +240,14 @@ message Context {
 // Params:
 //   * system: See ActorStstem message.
 //   * actor: The target Actor, i.e. the one that the user function is calling to perform some computation.
-//   * command_name: The function or method on the target Actor that will receive this request
+//   * command_name: The function or method on the target Actor that will receive this request 
 //     and perform some useful computation with the sent data.
 //   * value: This is the value sent by the user function to be computed by the request's target Actor command.
-//   * async: Indicates whether the command should be processed synchronously, where a response should be sent back to the user function,
+//   * async: Indicates whether the command should be processed synchronously, where a response should be sent back to the user function, 
 //            or whether the command should be processed asynchronously, i.e. no response sent to the caller and no waiting.
 message InvocationRequest {
 
-    eigr.actors.ActorSystem system =1;
+    eigr.actors.ActorSystem system = 1;
 
     eigr.actors.Actor actor = 2;
 
@@ -188,16 +258,16 @@ message InvocationRequest {
     bool async = 5;
 }
 
-// ActorInvocation is a translation message between a local invocation made via InvocationRequest
+// ActorInvocation is a translation message between a local invocation made via InvocationRequest 
 // and the real Actor that intends to respond to this invocation and that can be located anywhere in the cluster.
 //
 // Params:
 //   actor_name: The name of the Actor handling the InvocationRequest request, also called the target Actor.
 //   actor_system: The name of ActorSystem registered in Registration step.
-//   command_name: The function or method on the target Actor that will receive this request
+//   command_name: The function or method on the target Actor that will receive this request 
 //                 and perform some useful computation with the sent data.
-//   current_context: The current Context with current state value of the target Actor.
-//                    That is, the same as found via matching in %Actor{name: target_actor, state: %ActorState{state: value} = actor_state}.
+//   current_context: The current Context with current state value of the target Actor. 
+//                    That is, the same as found via matching in %Actor{name: target_actor, state: %ActorState{state: value} = actor_state}. 
 //                    In this case, the Context type will contain in the value attribute the same `value` as the matching above.
 //   value: The value to be passed to the function or method corresponding to command_name.
 message ActorInvocation {
@@ -219,7 +289,7 @@ message ActorInvocation {
 //   actor_name: The name of the Actor handling the InvocationRequest request, also called the target Actor.
 //   actor_system: The name of ActorSystem registered in Registration step.
 //   updated_context: The Context with updated state value of the target Actor after user function has processed a request.
-//   value: The value that the original request proxy will forward in response to the InvocationRequest type request.
+//   value: The value that the original request proxy will forward in response to the InvocationRequest type request. 
 //          This is the final response from the point of view of the user who invoked the Actor call and its subsequent processing.
 message ActorInvocationResponse {
 
@@ -230,13 +300,15 @@ message ActorInvocationResponse {
     Context updated_context = 3;
 
     google.protobuf.Any value = 4;
+
+    Workflow workflow = 5;
 }
 
 // InvocationResponse is the response that the proxy that received the InvocationRequest request will forward to the request's original user function.
 //
 // Params:
 //   status: Status of request. Could be one of [UNKNOWN, OK, ACTOR_NOT_FOUND, ERROR].
-//   sytem: The original ActorSystem of the InvocationRequest request.
+//   system: The original ActorSystem of the InvocationRequest request.
 //   actor: The target Actor originally sent in the InvocationRequest message.
 //   value: The value resulting from the request processing that the target Actor made.
 //          This value must be passed by the user function to the one who requested the initial request in InvocationRequest.
@@ -268,3 +340,5 @@ message RequestStatus {
 
     string message = 2;
 }
+
+  
