@@ -4,9 +4,14 @@ Licensed under the Apache License, Version 2.0.
 """
 from spawn.eigr.actor_pb2 import (
     Actor,
-    ActorDeactivateStrategy,
-    ActorSnapshotStrategy,
+    ActorId,
     ActorState,
+    Metadata,
+    ActorSettings,
+    Command,
+    FixedTimerCommand,
+    ActorSnapshotStrategy,
+    ActorDeactivationStrategy,
     ActorSystem,
     Registry,
     TimeoutStrategy,
@@ -59,18 +64,43 @@ class SpawnActorController:
 
             actor_state = ActorState()
 
-            deactivate_strategy = ActorDeactivateStrategy()
+            deactivate_strategy = ActorDeactivationStrategy()
             deactivate_strategy.timeout.CopyFrom(deactivate_timeout_strategy)
 
             snaphot_strategy = ActorSnapshotStrategy()
             snaphot_strategy.timeout.CopyFrom(snaphot_timeout_strategy)
 
             actor_01 = Actor()
-            actor_01.name = "user_actor_01"
-            actor_01.persistent = True
+
+            actor_id = ActorId()
+            actor_id.name = "user_actor_01"
+            actor_id.system = "spawn-system"
+
+            actor_01.id.CopyFrom(actor_id)
+
             actor_01.state.CopyFrom(actor_state)
-            actor_01.deactivate_strategy.CopyFrom(deactivate_strategy)
-            actor_01.snapshot_strategy.CopyFrom(snaphot_strategy)
+
+            actor_metatdata = Metadata()
+            actor_metatdata.channel_group = "spawn-python"
+            actor_metatdata.tags["actor"] = "user_actor_01"
+
+            actor_01.metadata.CopyFrom(actor_metatdata)
+
+            actor_settings = ActorSettings()
+            actor_settings.abstract = True
+            actor_settings.persistent = True
+            actor_settings.snapshot_strategy.CopyFrom(snaphot_strategy)
+            actor_settings.deactivation_strategy.CopyFrom(deactivate_strategy)
+
+            actor_01.settings.CopyFrom(actor_settings)
+
+            actor_command = actor_01.commands.add()
+            actor_command.name = ""
+
+            actor_fixed_timer_command = actor_01.timer_commands.add()
+
+            actor_fixed_timer_command.seconds = 1
+            actor_fixed_timer_command.command.CopyFrom(actor_command)
 
             registry = Registry()
             registry.actors.get_or_create("user_actor_01").CopyFrom(actor_01)
