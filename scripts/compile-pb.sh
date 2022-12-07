@@ -5,7 +5,7 @@ set -o errexit
 set -o pipefail
 
 # follow the basic steps here: https://grpc.io/docs/tutorials/basic/python/
-python3 -m grpc_tools.protoc -I ../protobuf/ --python_out=../spawn eigr/actor.proto
-python3 -m grpc_tools.protoc -I ../protobuf/ --python_out=../spawn eigr/protocol.proto
+protoc -I ../protobuf/ --python_out=../spawn eigr/functions/protocol/actors/actor.proto
+protoc -I ../protobuf/ --python_out=../spawn eigr/functions/protocol/actors/protocol.proto
 
-python3 -m grpc_tools.protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/domain/domain.proto
+protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/domain/domain.proto

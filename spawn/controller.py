@@ -2,7 +2,7 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from spawn.eigr.actor_pb2 import (
+from spawn.eigr.functions.protocol.actors.actor_pb2 import (
     Actor,
     ActorId,
     ActorState,
@@ -16,7 +16,8 @@ from spawn.eigr.actor_pb2 import (
     Registry,
     TimeoutStrategy,
 )
-from spawn.eigr.protocol_pb2 import (
+
+from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
     RegistrationRequest,
     RegistrationResponse,
     ServiceInfo,
@@ -53,7 +54,8 @@ class SpawnActorController:
         logging.info("Registering Actors on the Proxy %s", actors)
         try:
 
-            proxy_url = "http://{}:{}{}".format(self.host, self.port, self.register_uri)
+            proxy_url = "http://{}:{}{}".format(self.host,
+                                                self.port, self.register_uri)
 
             # Create actor params via ActorEntity
             deactivate_timeout_strategy = TimeoutStrategy()

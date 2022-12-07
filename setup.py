@@ -35,7 +35,7 @@ class FetchBuildProtosCommand(build_py):
                     file_path = pathlib.Path(root) / file
                     destination = "."
                     print(f"compiling {file_path} to {destination}")
-                    command = f"python -m grpc_tools.protoc {' '.join([' -I ' + i for i in proto_roots + proto_lib_roots])} --python_out={destination} --grpc_python_out={destination} {file_path}"  # noqa
+                    command = f"protoc {' '.join([' -I ' + i for i in proto_roots + proto_lib_roots])} --python_out={destination} --grpc_python_out={destination} {file_path}"  # noqa
                     os.system(command)
 
         return super().run()
@@ -62,8 +62,6 @@ setup(
         "attrs>=21.4.0",
         "google-api>=0.1.12",
         "googleapis-common-protos>=1.56.4",
-        "grpcio>=1.48.1",
-        "grpcio-tools>=1.0.0",
         "flask>=2.1.3",
         "protobuf>=3.20.0",
         "pytest>=7.1.2",

@@ -6,7 +6,7 @@ from flask import Blueprint, request, send_file
 
 from google.protobuf.any_pb2 import Any as ProtoAny
 
-from spawn.eigr.protocol_pb2 import ActorInvocation, ActorInvocationResponse, Context
+from spawn.eigr.functions.protocol.actors.protocol_pb2 import ActorInvocation, ActorInvocationResponse, Context
 
 import io
 import logging
@@ -18,13 +18,13 @@ action_handler = Blueprint('action_endpoint', __name__)
 def action():
     data = request.data
     logging.info('Received Actor action request: %s', data)
-    
+
     # Decode request payload data here and call python real actors methods.
     databytes = bytes(data)
     actor_invocation = ActorInvocation()
     actor_invocation.ParseFromString(databytes)
     logging.debug('Actor invocation data: %s', actor_invocation)
-    
+
     # Update Context
     updated_context = Context()
 
