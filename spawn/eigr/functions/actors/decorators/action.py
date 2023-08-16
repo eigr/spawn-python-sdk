@@ -15,10 +15,10 @@ def action(name: str = None):
         func_name = func.__name__ if not name else name
         action_info = ActionInfo(name=func_name)
 
-        actor_info = Actors.actors().get(cls_name)
+        actor_info = Actors().actors.get(cls_name)
         actor_info.actions.append(action_info)
 
-        Actors.actors().update(cls_name, actor_info)
+        Actors().actors.update(cls_name, actor_info)
 
         @wraps(func)
         async def wrapper(*args, **kwargs):

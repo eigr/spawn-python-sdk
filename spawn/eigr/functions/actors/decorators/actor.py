@@ -18,9 +18,19 @@ class ActorInfo:
     actions: List[ActionInfo] = None
 
 
-@dataclasses
 class Actors:
-    actors = Dict[str, ActorInfo]
+    _instance = None
+    actors = Dict[str, ActorInfo] = None
+
+    def __init__(self):
+        if not self.actors:
+            self.actors = Dict()
+
+    def __new__(cls, *args, **kwargs):
+        if not isinstance(cls._instance, cls):
+            cls._instance = object.__new__(cls)
+
+        return cls._instance
 
 
 class Context:
@@ -28,7 +38,6 @@ class Context:
 
 
 class Actor:
-
     def __init__(self, settings: ActorSettings):
         actor_info = ActorInfo(name=settings.name, settings=settings)
-        Actors.actors.update(self.__module__, actor_info)
+        Actors().actors.update(self.__module__, actor_info)
