@@ -13,6 +13,7 @@ class ActionInfo:
 
 @dataclasses
 class ActorInfo:
+    name: str = None
     settings: ActorSettings = None
     actions: List[ActionInfo] = None
 
@@ -29,5 +30,5 @@ class Context:
 class Actor:
 
     def __init__(self, settings: ActorSettings):
-        actor_info = ActorInfo(settings=settings)
+        actor_info = ActorInfo(name=settings.name, settings=settings)
         Actors.actors.update(self.__module__, actor_info)
