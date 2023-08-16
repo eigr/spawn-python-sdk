@@ -1,29 +1,33 @@
-from functools import wraps
+import dataclasses
+from typing import Dict, List
 
 from spawn.eigr.functions.actors.settings import ActorSettings
+
+
+class ActionInfo:
+    def __init__(self, name, input=None, output=None):
+        self.name = name
+        self.input = input
+        self.output = output
+
+
+@dataclasses
+class ActorInfo:
+    settings: ActorSettings = None
+    actions: List[ActionInfo] = None
+
+
+@dataclasses
+class Actors:
+    actors = Dict[str, ActorInfo]
 
 
 class Context:
     pass
 
 
-class ActionInfo:
-    def __init__(self, name, input, output):
-        self.name = name
-        self.input = input
-        self.output = output
-
-
 class Actor:
-    actions = None
 
     def __init__(self, settings: ActorSettings):
-        self.settings = settings
-
-    def __call__(self, *args, **kwds):
-        def __get_settings__(self):
-            print(self.settings)
-            return self.settings
-
-        def __register_action__(self, action: ActionInfo):
-            pass
+        actor_info = ActorInfo(settings=settings)
+        Actors.actors.update(self.__module__, actor_info)

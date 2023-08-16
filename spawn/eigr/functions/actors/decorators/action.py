@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 from spawn.eigr.functions.actors.settings import ActorSettings
-from spawn.eigr.functions.actors.decorators.actor import ActionInfo, Actor, Context
+from spawn.eigr.functions.actors.decorators.actor import ActionInfo, Actor, Actors, Context
 
 _logger = logging.getLogger(__name__)
 
@@ -10,8 +10,15 @@ _logger = logging.getLogger(__name__)
 def action(name: str = None):
     def decorator(func):
         _logger.debug("Registering Action {0}".format(func.__name__))
-        # self.__register_action__(ActionInfo(
-        #    name=func.__name__, input=x, output=y))
+
+        cls_name = func.__module__
+        func_name = func.__name__ if not name else name
+        action_info = ActionInfo(name=func_name)
+
+        actor_info = Actors.actors().get(cls_name)
+        actor_info.actions.append(action_info)
+
+        Actors.actors().update(cls_name, actor_info)
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
