@@ -1,15 +1,17 @@
 import logging
 from functools import wraps
 
-from spawn.eigr.functions.actor_settings import ActorSettings
-from spawn.eigr.functions.decorators.actor import Actor
+from spawn.eigr.functions.actors.settings import ActorSettings
+from spawn.eigr.functions.actors.decorators.actor import ActionInfo, Actor
 
 _logger = logging.getLogger(__name__)
 
 
-def action(name):
+def action(name: str = None):
     def decorator(func):
         _logger.debug("Registering Action {0}".format(func.__name__))
+        # self.__register_action__(ActionInfo(
+        #    name=func.__name__, input=x, output=y))
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -20,13 +22,13 @@ def action(name):
     return decorator
 
 
-@Actor(settings=ActorSettings(name="myactor", kind="singleton", deactivate_timeout=1, snapshot_timeout=2))
+@Actor(settings=ActorSettings(name="myactor", stateful=False))
 class MyActor:
     def __init__(self):
         pass
 
     @action(name="sum")
-    def sum(type):
+    def sum(input, ctx: Context):
         pass
 
 
