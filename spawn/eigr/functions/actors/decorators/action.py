@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 from spawn.eigr.functions.actors.settings import ActorSettings
-from spawn.eigr.functions.actors.decorators.actor import ActionInfo, Actor
+from spawn.eigr.functions.actors.decorators.actor import ActionInfo, Actor, Context
 
 _logger = logging.getLogger(__name__)
 

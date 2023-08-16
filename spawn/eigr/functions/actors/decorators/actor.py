@@ -3,6 +3,10 @@ from functools import wraps
 from spawn.eigr.functions.actors.settings import ActorSettings
 
 
+class Context:
+    pass
+
+
 class ActionInfo:
     def __init__(self, name, input, output):
         self.name = name
