@@ -8,4 +8,4 @@ set -o pipefail
 protoc -I ../protobuf/ --python_out=../spawn eigr/functions/protocol/actors/actor.proto
 protoc -I ../protobuf/ --python_out=../spawn eigr/functions/protocol/actors/protocol.proto
 
-protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/domain/domain.proto
+#protoc -I ../example/protobuf/ --python_out=../example ../example/protobuf/domain/domain.proto
