@@ -44,6 +44,8 @@ class MyActor:
 
     @action(name="sum")
     def sum(input, ctx: Context):
+        print(ctx)
+
         return Value()\
             .of("test")\
             .broadcast(Broadcast())\
