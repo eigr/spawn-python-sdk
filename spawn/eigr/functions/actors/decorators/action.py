@@ -1,8 +1,10 @@
 import logging
 from functools import wraps
-from spawn.eigr.functions.actors.core import ActionInfo, Actors
-
-from spawn.eigr.functions.actors.settings import ActorSettings
+from spawn.eigr.functions.actors.api.metadata import Metadata
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
+from spawn.eigr.functions.actors.api.workflows.effect import Effect
+from spawn.eigr.functions.actors.core import ActionInfo, ActorSettings, Actors, Context
 
 logging.basicConfig(level=logging.DEBUG)
 _logger = logging.getLogger(__name__)
@@ -26,7 +28,7 @@ def action(name: str = None):
 
         # Actors().actors.update(cls_name, actor_info)
 
-        @ wraps(func)
+        @wraps(func)
         async def wrapper(*args, **kwargs):
             return await func(*args, **kwargs)
 
@@ -35,11 +37,17 @@ def action(name: str = None):
     return decorator
 
 
-@ Actors
+@Actors
 class MyActor:
     def __init__(self, settings: ActorSettings):
         self.settings = settings
 
-    @ action(name="sum")
+    @action(name="sum")
     def sum(input, ctx: Context):
-        pass
+        return Value()\
+            .of("test")\
+            .broadcast(Broadcast())\
+            .effect(Effect())\
+            .metada(Metadata())\
+            .state({})\
+            .reply()
