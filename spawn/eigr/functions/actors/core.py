@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Generic, List, TypeVar
 
@@ -57,11 +56,3 @@ class Actors:
             cls._instance = object.__new__(cls)
 
         return cls._instance
-
-
-@dataclass
-class Context:
-    state: object
-    caller: str = None
-    metadata: Dict[str, str] = {}
-    tags: Dict[str, str] = {}

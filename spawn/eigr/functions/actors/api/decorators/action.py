@@ -1,11 +1,14 @@
 import logging
 from functools import wraps
+
+from spawn.eigr.functions.actors.api.context import Context
 from spawn.eigr.functions.actors.api.metadata import Metadata
 from spawn.eigr.functions.actors.api.value import Value
 from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
 from spawn.eigr.functions.actors.api.workflows.effect import Effect
-from spawn.eigr.functions.actors.core import ActionInfo, ActorSettings, Actors, Context, Kind
-from spawn.eigr.functions.actors.decorators.actor import Actor
+from spawn.eigr.functions.actors.api.decorators.actor import Actor
+
+from spawn.eigr.functions.actors.core import ActionInfo, ActorSettings, Actors
 
 logging.basicConfig(level=logging.DEBUG)
 _logger = logging.getLogger(__name__)
@@ -41,8 +44,7 @@ def action(name: str = None):
 @Actor
 class MyActor:
     def __init__(self, settings: ActorSettings):
-        self.settings = ActorSettings(
-            name="joe", kind=Kind.Named, stateful=False)
+        self.settings = settings
 
     @action(name="sum")
     def sum(input, ctx: Context):
