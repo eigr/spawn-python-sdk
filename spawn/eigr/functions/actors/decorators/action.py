@@ -1,8 +1,8 @@
 import logging
 from functools import wraps
+from spawn.eigr.functions.actors.core import ActionInfo, Actors
 
 from spawn.eigr.functions.actors.settings import ActorSettings
-from spawn.eigr.functions.actors.decorators.actor import ActionInfo, Actor, Actors, Context
 
 logging.basicConfig(level=logging.DEBUG)
 _logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def action(name: str = None):
     return decorator
 
 
-@ Actor
+@ Actors
 class MyActor:
     def __init__(self, settings: ActorSettings):
         self.settings = settings
