@@ -6,7 +6,6 @@ from flask import Flask
 
 from dataclasses import dataclass, field
 
-from spawn.entity import ActorEntity
 from spawn.handler import action_handler
 from spawn.controller import SpawnActorController as ActorController
 
@@ -30,9 +29,9 @@ class Spawn:
 
     __host = os.environ.get("HOST", "0.0.0.0")
     __port = os.environ.get("PORT", "8091")
-    __actors: List[ActorEntity] = field(default_factory=list)
     __app = Flask(__name__)
-    __is_debug_enable = json.loads(os.environ.get("SDK_DEBUG_ENABLE", "false").lower())
+    __is_debug_enable = json.loads(
+        os.environ.get("SDK_DEBUG_ENABLE", "false").lower())
     __actorController = ActorController(
         os.environ.get("PROXY_HOST", "localhost"),
         os.environ.get("PROXY_PORT", "9002"),
@@ -65,7 +64,8 @@ class Spawn:
         """Start the user function and HTTP Server."""
         address = "{}:{}".format(self.__host, self.__port)
 
-        server = threading.Thread(target=lambda: self.__start_server(action_handler))
+        server = threading.Thread(
+            target=lambda: self.__start_server(action_handler))
         logging.info("Starting Spawn on address %s", address)
         try:
             server.start()

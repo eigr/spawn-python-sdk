@@ -1,6 +1,6 @@
 import functools
 
-from spawn.eigr.functions.actors.core import ActorInfo, Actors
+from spawn.eigr.functions.actors.internal.core import ActorInfo, Actors
 
 
 def Actor(cls):

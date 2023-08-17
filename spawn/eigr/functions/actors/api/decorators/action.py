@@ -3,12 +3,13 @@ from functools import wraps
 
 from spawn.eigr.functions.actors.api.context import Context
 from spawn.eigr.functions.actors.api.metadata import Metadata
+from spawn.eigr.functions.actors.api.settings import ActorSettings
 from spawn.eigr.functions.actors.api.value import Value
 from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
 from spawn.eigr.functions.actors.api.workflows.effect import Effect
 from spawn.eigr.functions.actors.api.decorators.actor import Actor
 
-from spawn.eigr.functions.actors.core import ActionInfo, ActorSettings, Actors
+from spawn.eigr.functions.actors.internal.core import ActionInfo, Actors
 
 logging.basicConfig(level=logging.DEBUG)
 _logger = logging.getLogger(__name__)

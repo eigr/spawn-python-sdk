@@ -1,10 +1,10 @@
-from dataclasses import dataclass
-from typing import Dict
+from dataclasses import dataclass, field
+from typing import MutableMapping
 
 
 @dataclass
 class Context:
     state: object
     caller: str = None
-    metadata: Dict[str, str] = None
-    tags: Dict[str, str] = None
+    metadata: MutableMapping[str, str] = field(default_factory=dict)
+    tags: MutableMapping[str, str] = field(default_factory=dict)
