@@ -1,6 +1,7 @@
 # pylint: disable=too-few-public-methods
 # pylint: disable=arguments-differ
-from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
+from enum import Enum
 
 from spawn.eigr.functions.actors.api.metadata import Metadata
 from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
@@ -9,84 +10,86 @@ from spawn.eigr.functions.actors.api.workflows.forward import Forward
 from spawn.eigr.functions.actors.api.workflows.pipe import Pipe
 
 
-class IValue(metaclass=ABCMeta):
-    "The Builder Interface"
-
-    @staticmethod
-    @abstractmethod
-    def of(response, state=None):
-        "Build value from response and state"
-
-    @staticmethod
-    @abstractmethod
-    def state(state):
-        "Build value only from state"
-
-    @staticmethod
-    @abstractmethod
-    def metadata(metadata: Metadata):
-        "Build value with metadata"
-
-    @staticmethod
-    @abstractmethod
-    def value(response):
-        "Build value from response"
-
-    @staticmethod
-    @abstractmethod
-    def broadcast(broadcast: Broadcast):
-        "Create Broadcast"
-
-    @staticmethod
-    @abstractmethod
-    def effect(effect: Effect):
-        "Create Effect"
-
-    @staticmethod
-    @abstractmethod
-    def forward(forward: Forward):
-        "Create Forward"
-
-    @staticmethod
-    @abstractmethod
-    def pipe(pipe: Pipe):
-        "Create Pipe"
-
-    @staticmethod
-    @abstractmethod
-    def reply():
-        "Create Value response"
+class ReplyKind(str, Enum):
+    REPLY = 'REPLY'
+    NO_REPLY = 'NO_REPLY'
 
 
-class Value(IValue):
+@dataclass
+class Value():
     "The Concrete Builder."
+    __state = None
+    __response = None
+    __metadata: Metadata = None
+    __broadcast: Broadcast = None
+    __effect: Effect = None
+    __forward: Forward = None
+    __pipe: Pipe = None
+    __reply_kind: ReplyKind = ReplyKind.REPLY
 
-    def __init__(self):
-        pass
+    def get_state(self):
+        return self.__state
 
-    def of(response, state=None):
-        pass
+    def get_response(self):
+        return self.__response
 
-    def state(state):
-        pass
+    def get_metadata(self):
+        return self.__metadata
 
-    def metadata(metadata: Metadata):
-        pass
+    def get_broadcast(self):
+        return self.__broadcast
 
-    def value(response):
-        pass
+    def get_broadcast(self):
+        return self.__broadcast
 
-    def broadcast(broadcast: Broadcast):
-        pass
+    def get_effect(self):
+        return self.__effect
 
-    def effect(effect: Effect):
-        pass
+    def get_forward(self):
+        return self.__forward
 
-    def forward(forward: Forward):
-        pass
+    def get_pipe(self):
+        return self.__pipe
 
-    def pipe(pipe: Pipe):
-        pass
+    def get_reply_kind(self):
+        return self.__reply_kind
 
-    def reply():
-        pass
+    def of(self, value, state=None):
+        self.__response = value
+        self.__state = state
+        return self
+
+    def state(self, state):
+        self.__state = state
+        return self
+
+    def metadata(self, metadata: Metadata):
+        self.__metadata = metadata
+        return self
+
+    def value(self, value):
+        self.__response = value
+        return self
+
+    def broadcast(self, broadcast: Broadcast):
+        self.__broadcast = broadcast
+        return self
+
+    def effect(self, effect: Effect):
+        self.__effect = effect
+        return self
+
+    def forward(self, forward: Forward):
+        self.__forward = forward
+        return self
+
+    def pipe(self, pipe: Pipe):
+        self.__pipe = pipe
+        return self
+
+    def reply(self):
+        return self
+
+    def noreply(self):
+        self.__reply_kind = ReplyKind.NO_REPLY
+        return self

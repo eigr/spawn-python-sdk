@@ -16,19 +16,19 @@ from spawn.eigr.functions.actors.api.workflows.effect import Effect
 actor = Actor(settings=ActorSettings(name="joe", stateful=True))
 
 
-@actor.action("setLanguage")
-def set_language(request: Request, ctx: Context) -> Value:
+@actor.timer_action(every=1000)
+def hi(ctx: Context) -> Value:
+    print("Context {}".format(ctx))
+    new_state = JoeState()
+    new_state.languages.append("portuguese")
     return Value()\
         .of("test")\
-        .broadcast(Broadcast())\
-        .effect(Effect())\
-        .metada(Metadata())\
-        .state({})\
+        .state(new_state)\
         .reply()
 
 
-@actor.timer_action(every=1000)
-def hi(request: Request, ctx: Context) -> Value:
+@actor.action("setLanguage")
+def set_language(request: Request, ctx: Context) -> Value:
     return Value()\
         .of("test")\
         .broadcast(Broadcast())\

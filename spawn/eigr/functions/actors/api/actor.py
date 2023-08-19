@@ -63,6 +63,7 @@ class Actor:
 
 
 def invoke(function, parameters):
+    print("Parameters {}".format(parameters))
     ordered_parameters = []
     for parameter_definition in inspect.signature(function).parameters.values():
         annotation = parameter_definition.annotation
@@ -85,7 +86,12 @@ class ActorHandler:
     entity: Actor
 
     def handle_action(self, action_name, input, ctx: Context):
-        if action_name not in self.entity.action_handlers:
-            raise Exception("Missing action handler function for Actor {} and action {}".format(
-                self.entity.settings.name, action_name))
-        return invoke(self.entity.action_handlers[action_name], [input, ctx])
+        if action_name in self.entity.action_handlers:
+            return invoke(self.entity.action_handlers[action_name], [input, ctx])
+        elif action_name in self.entity.timer_action_handlers:
+            action = self.entity.timer_action_handlers[action_name].action
+            return invoke(action, [input, ctx])
+        else:
+            error = "Missing action handler function for Actor [{}] and Action [{}]".format(
+                self.entity.settings.name, action_name)
+            raise Exception(error)

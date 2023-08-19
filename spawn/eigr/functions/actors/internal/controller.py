@@ -6,8 +6,9 @@ Licensed under the Apache License, Version 2.0.
 
 from spawn.eigr.functions.actors.api.actor import Actor as ActorEntity
 from spawn.eigr.functions.actors.api.actor import ActorHandler
+from spawn.eigr.functions.actors.api.context import Context as ActorContext
+from spawn.eigr.functions.actors.api.value import Value, ReplyKind
 from spawn.eigr.functions.actors.api.settings import Kind as ActorKind
-from spawn.eigr.functions.actors.api.actor import TimerFunction
 
 from spawn.eigr.functions.protocol.actors.actor_pb2 import (
     Actor,
@@ -29,10 +30,14 @@ from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
     ActorInvocation,
     ActorInvocationResponse,
     Context,
+    Noop,
     RegistrationRequest,
     RegistrationResponse,
     ServiceInfo,
 )
+
+from google.protobuf import symbol_database as _symbol_database
+from google.protobuf.any_pb2 import Any as AnyProto
 
 import logging
 import platform
@@ -40,12 +45,59 @@ import requests
 
 from typing import Any, MutableMapping
 
+_sym_db = _symbol_database.Default()
+
 _DEFAULT_HEADERS = {
     "Accept": "application/octet-stream",
     "Content-Type": "application/octet-stream",
 }
 
 _REGISTER_URI = "/api/v1/system"
+
+TYPE_URL_PREFIX = 'type.googleapis.com/'
+
+
+def get_payload(input):
+    input_type: str = input.payload.type_url
+    if input_type.startswith(TYPE_URL_PREFIX):
+        input_type = input_type[len(TYPE_URL_PREFIX):]
+    input_class = _sym_db.GetSymbol(input_type)
+    input = input_class()
+    input.ParseFromString(input.payload.value)
+    return input
+
+
+def pack(input):
+    any = AnyProto()
+    any.Pack(input)
+    return any
+
+
+def handle_response(system, actor_name, result):
+    print("Result ----- {}".format(result))
+    actor_invocation_response = ActorInvocationResponse()
+    actor_invocation_response.actor_name = actor_name
+    actor_invocation_response.actor_system = system
+
+    updated_context = Context()
+
+    if result.get_metadata() != None and len(result.get_metadata().get_metadata()) > 0:
+        print("Metadata -----------".format(result.metadata))
+        updated_context.metadata = result.get_metadata.get_metadata()
+
+    if result.get_metadata() != None and len(result.get_metadata().get_tags()) > 0:
+        updated_context.tags = result.get_metadata().get_tags()
+
+    updated_context.state.CopyFrom(pack(result.get_state()))
+
+    actor_invocation_response.updated_context.CopyFrom(updated_context)
+
+    if result.get_reply_kind() == ReplyKind.NO_REPLY:
+        actor_invocation_response.noop = Noop()
+    elif result.get_reply_kind == ReplyKind.REPLY:
+        actor_invocation_response.value = pack(result.get_response())
+
+    return actor_invocation_response
 
 
 class ActorController:
@@ -81,17 +133,23 @@ class ActorController:
         entity = self.actors[actor_name] if not actor_parent else self.actors[actor_parent]
 
         handler = ActorHandler(entity)
+        current_context = actor_invocation.current_context
 
-        # Update Context
-        updated_context = Context()
+        input = None if actor_invocation.WhichOneof(
+            "payload") == "noop" else get_payload(actor_invocation.value)
 
-        # Then send ActorInvocationResponse back to the caller
-        actor_invocation_response = ActorInvocationResponse()
-        actor_invocation_response.actor_name = actor_name
-        actor_invocation_response.actor_system = actor_system
-        actor_invocation_response.updated_context.CopyFrom(updated_context)
+        ctx = ActorContext(state=None, caller=actor_invocation.caller.name,
+                           metadata=current_context.metadata, tags=current_context.tags)
 
-        return actor_invocation_response
+        result = handler.handle_action(
+            action_name=actor_invocation.action_name, input=input, ctx=ctx)
+
+        if not isinstance(result, Value):
+            raise Exception(
+                "Action did not return a valid type in its response. Valid Value found {}".format(type(result)))
+
+        # Handle result value
+        return handle_response(actor_system, actor_name, result)
 
     def register(self):
         logging.info("Registering Actors on the Proxy %s", self.actors)

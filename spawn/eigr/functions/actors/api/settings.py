@@ -18,8 +18,8 @@ class ActorSettings:
             stateful: bool = True,
             state_type: Generic[T] = None,
             channel: str = None,
-            deactivate_timeout: int = 30,
-            snapshot_timeout: int = 10):
+            deactivate_timeout: int = 30000,
+            snapshot_timeout: int = 2000):
         self.name = name
         self.kind = kind
         self.stateful = stateful
