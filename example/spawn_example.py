@@ -11,5 +11,6 @@ if __name__ == "__main__":
     request.language = "erlang"
 
     spawn = Spawn()
-    spawn.port("9003").register_actor(joe_actor).start()
+    spawn.port(8091).proxy_port(9003).actor_system(
+        "spawn-system").add_actor(joe_actor).start()
 #    spawn.invoke("vijay", "setLanguage", request, Reply)

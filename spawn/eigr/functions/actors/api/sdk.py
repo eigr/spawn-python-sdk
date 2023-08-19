@@ -5,12 +5,11 @@ Licensed under the Apache License, Version 2.0.
 from flask import Flask, request, send_file
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import MutableMapping
 
 from spawn.eigr.functions.actors.api.actor import Actor
 from spawn.eigr.functions.actors.internal.controller import ActorController
 
-from spawn.eigr.functions.protocol.actors.protocol_pb2 import ActorInvocation, ActorInvocationResponse, Context
 from google.protobuf.any_pb2 import Any as ProtoAny
 
 import io
@@ -27,20 +26,7 @@ def create_app(controller: ActorController):
         data = request.data
         logging.info('Received Actor action request: %s', data)
 
-        # Decode request payload data here and call python real actors methods.
-        databytes = bytes(data)
-        actor_invocation = ActorInvocation()
-        actor_invocation.ParseFromString(databytes)
-        logging.debug('Actor invocation data: %s', actor_invocation)
-
-        # Update Context
-        updated_context = Context()
-
-        # Then send ActorInvocationResponse back to the caller
-        actor_invocation_response = ActorInvocationResponse()
-        actor_invocation_response.actor_name = actor_invocation.actor_name
-        actor_invocation_response.actor_system = actor_invocation.actor_system
-        actor_invocation_response.updated_context.CopyFrom(updated_context)
+        actor_invocation_response = controller.handle_invoke(data)
 
         return send_file(
             io.BytesIO(actor_invocation_response.SerializeToString()),
@@ -60,9 +46,13 @@ class Spawn:
 
     __app = None
     __controller = None
-    __host = os.environ.get("HOST", "0.0.0.0")
-    __port = os.environ.get("PORT", "8091")
-    __actor_entities: List[Actor] = field(default_factory=list)
+    __host = os.environ.get("USER_FUNCTION_HOST", "0.0.0.0")
+    __port = os.environ.get("USER_FUNCTION_PORT", "8091")
+    __proxy_host = os.environ.get("PROXY_HTTP_HOST", "0.0.0.0")
+    __proxy_port = os.environ.get("PROXY_HTTP_PORT", "9001")
+    __system: str = None
+    __actor_entities: MutableMapping[str,
+                                     Actor] = field(default_factory=dict)
 
     # @staticmethod
     # def invoke(name: str, command: str, arg: Any, output_type: Any) -> Any:
@@ -77,21 +67,39 @@ class Spawn:
         self.__host = address
         return self
 
-    def port(self, port: str):
+    def port(self, port: int):
         """Set the Network Port address."""
-        self.__port = port
+        self.__port = str(port)
         return self
 
-    def register_actor(self, actor: Actor):
+    def proxy_host(self, host: str):
+        """Set the Spawn Proxy Host Address"""
+        self.__proxy_host = host
+        return self
+
+    def proxy_port(self, port: int):
+        self.__proxy_port = str(port)
+        return self
+
+    def actor_system(self, system: str = None):
+        """Set the ActorSystem"""
+        self.__system = system
+        return self
+
+    def add_actor(self, actor: Actor):
         """Registry the user Actor entity."""
-        self.__actor_entities.append(actor)
+        self.__actor_entities[actor.settings.name] = actor
         return self
 
     def start(self):
         """Start the user function and HTTP Server."""
+        if not self.__system:
+            raise Exception(
+                "ActorSystem cannot be None. Use actor_system function to set an ActorSystem")
+
         address = "{}:{}".format(self.__host, self.__port)
         self.__controller = ActorController(
-            self.__host, self.__port, self.__actor_entities)
+            self.__proxy_host, self.__proxy_port, self.__system, self.__actor_entities)
 
         self.__app = create_app(controller=self.__controller)
 

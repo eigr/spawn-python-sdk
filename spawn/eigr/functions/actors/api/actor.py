@@ -9,27 +9,57 @@ from spawn.eigr.functions.actors.api.settings import ActorSettings
 
 
 @dataclass
+class TimerFunction:
+    every: int
+    action: Callable
+
+
+@dataclass
 class Actor:
     settings: ActorSettings
 
     action_handlers: MutableMapping[str,
                                     Callable] = field(default_factory=dict)
 
+    timer_action_handlers: MutableMapping[str,
+                                          Callable] = field(default_factory=dict)
+
     def action(self, name: str):
         def register_action_handler(function):
             """
             Register the function to handle actions
             """
-            if name in self.action_handlers:
+            action_name = name if name is not None else function.__name__
+
+            if action_name in self.action_handlers:
                 raise Exception("Action handler function {} already defined for action {}".format(
-                    self.action_handlers[name], name))
+                    self.action_handlers[action_name], action_name))
             if function.__code__.co_argcount > 2:
                 raise Exception(
                     "At most two parameters, the input parameter and the context parameter, should be accepted by the action function")
-            self.action_handlers[name] = function
+            self.action_handlers[action_name] = function
             return function
 
         return register_action_handler
+
+    def timer_action(self, every: int, name: str = None):
+        def register_timer_action_handler(function):
+            """
+            Register the function to handle actions
+            """
+            action_name = name if name is not None else function.__name__
+
+            if name in self.timer_action_handlers:
+                raise Exception("Timer Action handler function {} already defined for action {}".format(
+                    self.timer_action_handlers[action_name], action_name))
+            if function.__code__.co_argcount > 2:
+                raise Exception(
+                    "At most two parameters, the input parameter and the context parameter, should be accepted by the action function")
+            self.timer_action_handlers[action_name] = TimerFunction(
+                every=every, action=function)
+            return function
+
+        return register_timer_action_handler
 
 
 def invoke(function, parameters):

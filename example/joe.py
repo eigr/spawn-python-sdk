@@ -13,11 +13,22 @@ from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
 from spawn.eigr.functions.actors.api.workflows.effect import Effect
 
 
-actor = Actor(settings=ActorSettings(name="joe", stateful=False))
+actor = Actor(settings=ActorSettings(name="joe", stateful=True))
 
 
 @actor.action("setLanguage")
 def set_language(request: Request, ctx: Context) -> Value:
+    return Value()\
+        .of("test")\
+        .broadcast(Broadcast())\
+        .effect(Effect())\
+        .metada(Metadata())\
+        .state({})\
+        .reply()
+
+
+@actor.timer_action(every=1000)
+def hi(request: Request, ctx: Context) -> Value:
     return Value()\
         .of("test")\
         .broadcast(Broadcast())\
