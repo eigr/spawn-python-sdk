@@ -2,35 +2,26 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from dataclasses import dataclass
 from domain.domain_pb2 import JoeState, Request, Reply
-from spawn.entity import ActorContext, ActorEntity, ActorInit, ActorParams, Value
+
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.metadata import Metadata
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
+from spawn.eigr.functions.actors.api.workflows.effect import Effect
 
 
-@dataclass
-class JoeActor(ActorInit):
+actor = Actor(settings=ActorSettings(name="joe", stateful=False))
 
-    # TODO: Remove this because it´s a bad design. Correct is extract this to superior Class
-    def init() -> ActorParams:
-        return ActorParams(
-            name="joe",
-            state_type=JoeState,
-            snapshot_timeout=10000,
-            deactivate_timeout=120000,
-        )
 
-    entity = ActorEntity(init)
-
-    @entity.command("getActualState")
-    def get_actual_state(self, ctx: ActorContext) -> Value:
-        current_state = ctx.state
-        new_value = current_state
-        return Value(current_state, new_value)
-
-    @entity.command("setLanguage")
-    def set_language(self, ctx: ActorContext) -> Value:
-        reply = Reply()
-        reply.response = "elf"
-
-        new_state = ctx.state.languages.extend("elf")
-        return Value(new_state, reply)
+@actor.action("setLanguage")
+def set_language(request: Request, ctx: Context) -> Value:
+    return Value()\
+        .of("test")\
+        .broadcast(Broadcast())\
+        .effect(Effect())\
+        .metada(Metadata())\
+        .state({})\
+        .reply()

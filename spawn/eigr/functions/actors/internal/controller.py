@@ -1,18 +1,23 @@
 """
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
+
 """
+
+from spawn.eigr.functions.actors.api.actor import Actor as ActorEntity
+
 from spawn.eigr.functions.protocol.actors.actor_pb2 import (
     Actor,
     ActorId,
     ActorState,
     Metadata,
     ActorSettings,
-    Command,
-    FixedTimerCommand,
+    Action,
+    FixedTimerAction,
     ActorSnapshotStrategy,
     ActorDeactivationStrategy,
     ActorSystem,
+    Kind,
     Registry,
     TimeoutStrategy,
 )
@@ -23,7 +28,6 @@ from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
     ServiceInfo,
 )
 
-from spawn.entity import ActorEntity
 
 import logging
 import platform
@@ -31,31 +35,34 @@ import requests
 
 from typing import Any, List
 
+_DEFAULT_HEADERS = {
+    "Accept": "application/octet-stream",
+    "Content-Type": "application/octet-stream",
+}
 
-class SpawnActorController:
+_REGISTER_URI = "/api/v1/system"
 
-    register_uri = "/api/v1/system"
 
-    default_headers = {
-        "Accept": "application/octet-stream",
-        "Content-Type": "application/octet-stream",
-    }
+class ActorController:
+    _instance = None
 
-    def __init__(self, host: str, port: str):
+    def __init__(self, host: str, port: str, actors: List[ActorEntity]):
         self.host = host
         self.port = port
+        self.actors = actors
 
-    def invoke(
-        self, actor_name: str, actor_command: str, arg: Any, output_type: Any
-    ) -> Any:
-        return ""
+    def __new__(cls, *args, **kwargs):
+        if not isinstance(cls._instance, cls):
+            cls._instance = object.__new__(cls)
 
-    def register(self, actors: List[ActorEntity]):
-        logging.info("Registering Actors on the Proxy %s", actors)
+        return cls._instance
+
+    def register(self):
+        logging.info("Registering Actors on the Proxy %s", self.actors)
         try:
 
             proxy_url = "http://{}:{}{}".format(self.host,
-                                                self.port, self.register_uri)
+                                                self.port, _REGISTER_URI)
 
             # Create actor params via ActorEntity
             deactivate_timeout_strategy = TimeoutStrategy()
@@ -89,20 +96,20 @@ class SpawnActorController:
             actor_01.metadata.CopyFrom(actor_metatdata)
 
             actor_settings = ActorSettings()
-            actor_settings.abstract = True
-            actor_settings.persistent = True
+            actor_settings.kind = Kind.UNAMED
+            actor_settings.stateful = True
             actor_settings.snapshot_strategy.CopyFrom(snaphot_strategy)
             actor_settings.deactivation_strategy.CopyFrom(deactivate_strategy)
 
             actor_01.settings.CopyFrom(actor_settings)
 
-            actor_command = actor_01.commands.add()
-            actor_command.name = ""
+            actor_action = actor_01.actions.add()
+            actor_action.name = ""
 
-            actor_fixed_timer_command = actor_01.timer_commands.add()
+            actor_fixed_timer_action = actor_01.timer_actions.add()
 
-            actor_fixed_timer_command.seconds = 1
-            actor_fixed_timer_command.command.CopyFrom(actor_command)
+            actor_fixed_timer_action.seconds = 1
+            actor_fixed_timer_action.action.CopyFrom(actor_action)
 
             registry = Registry()
             registry.actors.get_or_create("user_actor_01").CopyFrom(actor_01)
@@ -136,7 +143,7 @@ class SpawnActorController:
             binary_payload = response.SerializeToString()
 
             resp = requests.post(
-                proxy_url, data=binary_payload, headers=self.default_headers
+                proxy_url, data=binary_payload, headers=_DEFAULT_HEADERS
             )
 
             logging.info("Actors register response %s", resp)
