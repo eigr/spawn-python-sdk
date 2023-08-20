@@ -15,6 +15,7 @@ from google.protobuf.any_pb2 import Any as ProtoAny
 import io
 import os
 import logging
+import uvicorn
 import threading
 
 
@@ -24,7 +25,6 @@ def create_app(controller: ActorController):
     @app.route('/api/v1/actors/actions', methods=["POST"])
     def action():
         data = request.data
-        logging.info('Received Actor action request: %s', data)
 
         actor_invocation_response = controller.handle_invoke(data)
 
@@ -69,7 +69,7 @@ class Spawn:
 
     def port(self, port: int):
         """Set the Network Port address."""
-        self.__port = str(port)
+        self.__port = port
         return self
 
     def proxy_host(self, host: str):
@@ -105,12 +105,14 @@ class Spawn:
 
         server = threading.Thread(
             target=lambda: self.__start_server())
+        client = threading.Thread(
+            target=lambda: self.__register())
         logging.info("Starting Spawn on address %s", address)
         try:
             server.start()
-
-            # Invoke proxy for register ActorsEntity using Spawn protobuf types
-            self.__register()
+            client.start()
+            server.join()
+            client.join()
         except IOError as e:
             logging.error("Error on start Spawn %s", e.__cause__)
 
@@ -118,6 +120,8 @@ class Spawn:
         self.__controller.register()
 
     def __start_server(self):
+
+        # uvicorn.run(self.__app, host=self.__host, port=self.__port)
         self.__app.run(
             host=self.__host,
             port=self.__port,
