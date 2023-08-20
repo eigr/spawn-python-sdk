@@ -17,6 +17,11 @@ actor = Actor(settings=ActorSettings(name="joe", stateful=True))
 @actor.timer_action(every=1000)
 def hi(ctx: Context) -> Value:
     new_state = None
+    broadcast = Broadcast()
+    broadcast.channel = "test"
+    broadcast.action_name = "setLanguage"
+    broadcast.value = Request()
+
     if not ctx.state:
         new_state = JoeState()
         new_state.languages.append("portuguese")
@@ -25,6 +30,7 @@ def hi(ctx: Context) -> Value:
 
     return Value()\
         .of("test")\
+        .broadcast(broadcast)\
         .state(new_state)\
         .reply()
 
@@ -33,7 +39,7 @@ def hi(ctx: Context) -> Value:
 def set_language(request: Request, ctx: Context) -> Value:
     return Value()\
         .of("test")\
-        .broadcast(Broadcast())\
+        .broadcast()\
         .effect(Effect())\
         .metada(Metadata())\
         .state({})\

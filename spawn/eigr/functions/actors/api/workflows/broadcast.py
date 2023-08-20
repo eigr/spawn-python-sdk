@@ -1,4 +1,9 @@
 
+from dataclasses import dataclass
+
+
+@dataclass
 class Broadcast:
-    def __init__(self):
-        pass
+    channel: str = None
+    action_name: str = None
+    value: any = None

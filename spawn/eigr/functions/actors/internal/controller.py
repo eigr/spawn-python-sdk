@@ -36,6 +36,7 @@ from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
     Noop,
     RegistrationRequest,
     ServiceInfo,
+    Broadcast
 )
 
 from google.protobuf import symbol_database as _symbol_database
@@ -100,7 +101,26 @@ def handle_response(system, actor_name, result):
     elif result.get_reply_kind == ReplyKind.REPLY:
         actor_invocation_response.value = pack(result.get_response())
 
+    if result.get_broadcast() != None:
+        value_broadcast = result.get_broadcast()
+        broadcast = handle_broadcast(value_broadcast)
+        actor_invocation_response.workflow.broadcast.CopyFrom(broadcast)
+
     return actor_invocation_response
+
+
+def handle_broadcast(value_broadcast):
+    broadcast = Broadcast()
+    broadcast.channel_group = value_broadcast.channel
+    broadcast.action_name = value_broadcast.action_name
+
+    if value_broadcast.value == None:
+        broadcast.noop = Noop()
+    else:
+        value = pack(value_broadcast.value)
+        broadcast.value.CopyFrom(value)
+
+    return broadcast
 
 
 class ActorController:
