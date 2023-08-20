@@ -86,7 +86,6 @@ def handle_response(system, actor_name, result):
     updated_context = Context()
 
     if result.get_metadata() != None and len(result.get_metadata().get_metadata()) > 0:
-        print("Metadata -----------".format(result.metadata))
         updated_context.metadata = result.get_metadata.get_metadata()
 
     if result.get_metadata() != None and len(result.get_metadata().get_tags()) > 0:
@@ -153,8 +152,9 @@ class ActorController:
             action_name=actor_invocation.action_name, input=input, ctx=ctx)
 
         if not isinstance(result, Value):
-            raise Exception(
-                "Action did not return a valid type in its response. Valid Value found {}".format(type(result)))
+            message = "Action did not return a valid type in its response. Valid Value found {}".format(
+                type(result))
+            raise Exception(message)
 
         # Handle result value
         return handle_response(actor_system, actor_name, result)
