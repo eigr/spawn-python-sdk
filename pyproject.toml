@@ -1,0 +1,55 @@
+[tool.poetry]
+authors = ["Adriano Santos <sleipnir@eigr.io>"]
+classifiers = [
+  "Topic :: Software Development",
+  "Intended Audience :: Developers",
+]
+description = "Spawn Python SDK"
+documentation = "https://eigr.io/docs"
+homepage = "https://eigr.io/"
+keywords = ["cloud", "service mesh", "sidecar", "erlang", "elixir"]
+license = "Apache-2.0"
+maintainers = [
+  "Adriano Santos <sleipnir@eigr.io>",
+]
+name = "spawn"
+packages = [{include = "spawn"}]
+readme = "README.md"
+repository = "https://github.com/eigr-labs/spawn-python-sdk"
+version = "0.1.1"
+
+[tool.poetry.dependencies]
+async-lru = "^2.0.4"
+attrs = "^21.4.0"
+dependency-injector = "^4.39.1"
+flask = "^2.1.3"
+google-api = "^0.1.12"
+googleapis-common-protos = "1.56.4"
+httpx = "^0.24.1"
+protobuf = "3.20.3"
+pydantic = "1.10.11"
+python = "^3.9.7"
+requests = "^2.31.0"
+uvicorn = {extras = ["standard"], version = "^0.23.2"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+
+# formatters
+black = "^23.7.0"
+isort = {version = "^5.12.0", extras = ["pyproject"]}
+
+[tool.isort]
+line_length = 140
+profile = "black"
+py_version = 310
+src_paths = ["src", "spawn", "tests"]
+
+[tool.black]
+line-length = 115
+skip_string_normalization = true
+target-version = ['py310']
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
