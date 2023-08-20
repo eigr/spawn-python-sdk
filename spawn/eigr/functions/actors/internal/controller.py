@@ -58,13 +58,14 @@ TYPE_URL_PREFIX = 'type.googleapis.com/'
 
 
 def get_payload(input):
-    input_type: str = input.payload.type_url
+    print(input)
+    input_type: str = input.type_url
     if input_type.startswith(TYPE_URL_PREFIX):
         input_type = input_type[len(TYPE_URL_PREFIX):]
     input_class = _sym_db.GetSymbol(input_type)
-    input = input_class()
-    input.ParseFromString(input.payload.value)
-    return input
+    result = input_class()
+    result.ParseFromString(input.value)
+    return result
 
 
 def pack(input):
@@ -135,10 +136,13 @@ class ActorController:
         handler = ActorHandler(entity)
         current_context = actor_invocation.current_context
 
+        state = None if current_context.state == None else get_payload(
+            current_context.state)
+
         input = None if actor_invocation.WhichOneof(
             "payload") == "noop" else get_payload(actor_invocation.value)
 
-        ctx = ActorContext(state=None, caller=actor_invocation.caller.name,
+        ctx = ActorContext(state=state, caller=actor_invocation.caller.name,
                            metadata=current_context.metadata, tags=current_context.tags)
 
         result = handler.handle_action(

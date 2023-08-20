@@ -13,4 +13,3 @@ if __name__ == "__main__":
     spawn = Spawn()
     spawn.port(8091).proxy_port(9003).actor_system(
         "spawn-system").add_actor(joe_actor).start()
-#    spawn.invoke("vijay", "setLanguage", request, Reply)
