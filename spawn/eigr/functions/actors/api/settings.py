@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generic, TypeVar
+from typing import Generic, MutableMapping, TypeVar
 
 T = TypeVar('T')
 
@@ -18,6 +18,8 @@ class ActorSettings:
             stateful: bool = True,
             state_type: Generic[T] = None,
             channel: str = None,
+            metadata: MutableMapping[str, str] = dict(),
+            tags: MutableMapping[str, str] = dict(),
             deactivate_timeout: int = 30000,
             snapshot_timeout: int = 2000):
         self.name = name
@@ -25,5 +27,6 @@ class ActorSettings:
         self.stateful = stateful
         self.state_type = state_type
         self.channel = channel
+        self.tags = tags
         self.deactivate_timeout = deactivate_timeout
         self.snapshot_timeout = snapshot_timeout

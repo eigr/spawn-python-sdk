@@ -63,7 +63,6 @@ class Actor:
 
 
 def invoke(function, parameters):
-    print("Parameters {}".format(parameters))
     ordered_parameters = []
     for parameter_definition in inspect.signature(function).parameters.values():
         annotation = parameter_definition.annotation
