@@ -3,6 +3,9 @@ Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 
 """
+import logging
+import platform
+import requests
 
 from spawn.eigr.functions.actors.api.actor import Actor as ActorEntity
 from spawn.eigr.functions.actors.api.actor import ActorHandler
@@ -39,9 +42,7 @@ from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.any_pb2 import Any as AnyProto
 
-import logging
-import platform
-import requests
+from requests.adapters import HTTPAdapter, Retry
 
 from typing import Any, MutableMapping
 
@@ -52,13 +53,18 @@ _DEFAULT_HEADERS = {
     "Content-Type": "application/octet-stream",
 }
 
+_DEFAULT_MAX_RETRIES = 100
+_DEFAULT_MAX_RETRIES_BACKOFF_FACTOR = 0.2
 _REGISTER_URI = "/api/v1/system"
-
 TYPE_URL_PREFIX = 'type.googleapis.com/'
+
+req = requests.Session()
+retries = Retry(total=_DEFAULT_MAX_RETRIES,
+                backoff_factor=_DEFAULT_MAX_RETRIES_BACKOFF_FACTOR)
+req.mount('http://', HTTPAdapter(max_retries=retries))
 
 
 def get_payload(input):
-    print(input)
     input_type: str = input.type_url
     if input_type.startswith(TYPE_URL_PREFIX):
         input_type = input_type[len(TYPE_URL_PREFIX):]
@@ -75,7 +81,6 @@ def pack(input):
 
 
 def handle_response(system, actor_name, result):
-    print("Result ----- {}".format(result))
     actor_invocation_response = ActorInvocationResponse()
     actor_invocation_response.actor_name = actor_name
     actor_invocation_response.actor_system = system
@@ -122,6 +127,7 @@ class ActorController:
         actor_invocation = ActorInvocation()
         actor_invocation.ParseFromString(databytes)
         logging.debug('Actor invocation data: %s', actor_invocation)
+
         actor_id = actor_invocation.actor
         actor_system = actor_id.system
         actor_name = actor_id.name
@@ -200,14 +206,15 @@ class ActorController:
                     deactivate_strategy)
 
                 # Set metadata
-                actor_metatdata = Metadata()
+                actor_metadata = Metadata()
+
+                for key, value in entity.settings.tags.items():
+                    actor_metadata.tags[key] = value
 
                 if (entity.settings.channel is not None and len(entity.settings.channel) > 0):
-                    actor_metatdata.channel_group = entity.settings.channel
+                    actor_metadata.channel_group = entity.settings.channel
 
-                # actor_metatdata.tags["actor"] = "user_actor_template"
-
-                actor_template.metadata.CopyFrom(actor_metatdata)
+                actor_template.metadata.CopyFrom(actor_metadata)
 
                 # Set settings
                 if entity.settings.kind == ActorKind.NAMED:
@@ -266,7 +273,7 @@ class ActorController:
 
             binary_payload = request.SerializeToString()
 
-            resp = requests.post(
+            resp = req.post(
                 proxy_url, data=binary_payload, headers=_DEFAULT_HEADERS
             )
 
