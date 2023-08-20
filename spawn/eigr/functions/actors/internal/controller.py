@@ -35,7 +35,6 @@ from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
     Context,
     Noop,
     RegistrationRequest,
-    RegistrationResponse,
     ServiceInfo,
 )
 
@@ -44,7 +43,7 @@ from google.protobuf.any_pb2 import Any as AnyProto
 
 from requests.adapters import HTTPAdapter, Retry
 
-from typing import Any, MutableMapping
+from typing import MutableMapping
 
 _sym_db = _symbol_database.Default()
 
@@ -52,7 +51,6 @@ _DEFAULT_HEADERS = {
     "Accept": "application/octet-stream",
     "Content-Type": "application/octet-stream",
 }
-
 _DEFAULT_MAX_RETRIES = 100
 _DEFAULT_MAX_RETRIES_BACKOFF_FACTOR = 0.2
 _REGISTER_URI = "/api/v1/system"
