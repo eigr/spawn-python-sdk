@@ -63,20 +63,18 @@ class Actor:
 
 
 def invoke(function, parameters):
-    ordered_parameters = []
     for parameter_definition in inspect.signature(function).parameters.values():
         annotation = parameter_definition.annotation
+
         if annotation == inspect._empty:
             raise Exception("Cannot inject parameter {} of function {}: Missing type annotation".format(
                 parameter_definition.name, function))
-        match_found = False
-        for param in parameters:
-            if isinstance(param, annotation):
-                match_found = True
-                ordered_parameters.append(param)
-        if not match_found:
-            raise Exception("Cannot inject parameter {} of function {}: No matching value".format(
-                parameter_definition.name, function))
+
+    ordered_parameters = []
+    for param in parameters:
+        if param != None:
+            ordered_parameters.append(param)
+
     return function(*ordered_parameters)
 
 

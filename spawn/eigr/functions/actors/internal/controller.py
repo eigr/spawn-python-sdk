@@ -97,9 +97,9 @@ def handle_response(system, actor_name, result):
     actor_invocation_response.updated_context.CopyFrom(updated_context)
 
     if result.get_reply_kind() == ReplyKind.NO_REPLY:
-        actor_invocation_response.noop = Noop()
+        actor_invocation_response.noop.CopyFrom(Noop())
     elif result.get_reply_kind == ReplyKind.REPLY:
-        actor_invocation_response.value = pack(result.get_response())
+        actor_invocation_response.value.CopyFrom(pack(result.get_response()))
 
     if result.get_broadcast() != None:
         value_broadcast = result.get_broadcast()
