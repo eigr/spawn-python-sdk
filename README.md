@@ -91,12 +91,11 @@ touch spawn_py_demo/joe.py
 Populate this file with the following content:
 
 ```python
-from domain.domain_pb2 import JoeState, Request, Reply
+from domain.domain_pb2 import JoeState
 from spawn.eigr.functions.actors.api.actor import Actor
 from spawn.eigr.functions.actors.api.settings import ActorSettings
 from spawn.eigr.functions.actors.api.context import Context
 from spawn.eigr.functions.actors.api.value import Value
-from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
 
 actor = Actor(settings=ActorSettings(
     name="joe", stateful=True, channel="test"))
