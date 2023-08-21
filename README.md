@@ -2,8 +2,18 @@
 Python User Language Support for [Spawn](https://github.com/eigr/spawn).
 
 # Table of Contents
+
 1. [Overview](#overview)
 2. [Getting Started](#getting-started)
+3. [Advanced Use Cases](#advanced-use-cases)
+   - [Side Effects](#side-effects)
+   - [Broadcast](#broadcast)
+   - [Forward](#forward)
+   - [Pipe](#pipe)
+4. [Deploy](#deploy)
+   - [Packing with Containers](#packing-with-containers)
+   - [Defining an ActorSytem](#defining-an-actorsytem)
+   - [Defining an ActorHost](#defining-an-actorhost)
 
 
 ## Overview
@@ -95,6 +105,60 @@ actor = Actor(settings=ActorSettings(
 @actor.timer_action(every=1000)
 def hi(ctx: Context) -> Value:
     new_state = None
+
+    if not ctx.state:
+        new_state = JoeState()
+        new_state.languages.append("python")
+    else:
+        new_state = ctx.state
+
+    return Value().state(new_state).noreply()
+```
+
+Now with our Actor properly defined, we just need to start the SDK correctly. Create another file called main.py to serve as your application's entrypoint and fill it with the following content:
+
+```python
+from spawn.eigr.functions.actors.api.sdk import Spawn
+from joe import actor as joe_actor
+
+if __name__ == "__main__":
+    spawn = Spawn()
+    spawn.port(8091).proxy_port(9003).actor_system(
+        "spawn-system").add_actor(joe_actor).start()
+```
+
+Then:
+
+```shell
+poetry run python3 spawn_py_demo/main.py
+```
+
+And this is it to start! Now that you know the basics of local development, we can go a little further.
+
+## Advanced Use Cases
+TODO
+
+### Side Effects
+TODO
+
+### Broadcast
+TODO
+
+```python
+from domain.domain_pb2 import JoeState, Request, Reply
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
+
+actor = Actor(settings=ActorSettings(
+    name="joe", stateful=True, channel="test"))
+
+
+@actor.timer_action(every=1000)
+def hi(ctx: Context) -> Value:
+    new_state = None
     request = Request()
     request.language = "python"
     broadcast = Broadcast()
@@ -121,14 +185,21 @@ def set_language(request: Request, ctx: Context) -> Value:
     return Value().of(reply, ctx.state).reply()
 ```
 
-Now with our Actor properly defined, we just need to start the SDK correctly. Create another file to serve as your application's entrypoint and fill it with the following content:
+### Forward
+TODO
 
-```python
-from spawn.eigr.functions.actors.api.sdk import Spawn
-from joe import actor as joe_actor
+### Pipe
+TODO
 
-if __name__ == "__main__":
-    spawn = Spawn()
-    spawn.port(8091).proxy_port(9003).actor_system(
-        "spawn-system").add_actor(joe_actor).start()
-```
+## Deploy
+TODO
+
+### Packing with Containers 
+TODO
+
+### Defining an ActorSytem
+TODO
+
+### Defining an ActorHost
+TODO 
+   
