@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 from typing import MutableMapping
 
 from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.reference import ActorRef
+from spawn.eigr.functions.actors.internal.client import SpawnClient
 from spawn.eigr.functions.actors.internal.controller import ActorController
 
 from google.protobuf.any_pb2 import Any as ProtoAny
@@ -24,6 +26,7 @@ def create_app(controller: ActorController):
 
     @app.route('/api/v1/actors/actions', methods=["POST"])
     def action():
+        print(request)
         data = request.data
 
         actor_invocation_response = controller.handle_invoke(data)
@@ -54,31 +57,33 @@ class Spawn:
     __actor_entities: MutableMapping[str,
                                      Actor] = field(default_factory=dict)
 
-    # @staticmethod
-    # def invoke(name: str, command: str, arg: Any, output_type: Any) -> Any:
-    #     actorController = ActorController(
-    #         os.environ.get("PROXY_HOST", "localhost"),
-    #         os.environ.get("PROXY_PORT", "9002"),
-    #     )
-    #     actorController.invoke(name, command, arg, output_type)
+    @staticmethod
+    def create_actor_ref(system: str, actor_name: str, parent: str = None, state_revision: int = None) -> ActorRef:
+        client = SpawnClient()
+        return ActorRef(client, system, actor_name, parent, state_revision)
 
     def host(self, address: str):
         """Set the Network Host address."""
         self.__host = address
+        os.environ["USER_FUNCTION_HOST"] = address
         return self
 
     def port(self, port: int):
         """Set the Network Port address."""
         self.__port = port
+        os.environ["USER_FUNCTION_PORT"] = str(port)
         return self
 
     def proxy_host(self, host: str):
         """Set the Spawn Proxy Host Address"""
         self.__proxy_host = host
+        os.environ["PROXY_HTTP_HOST"] = host
         return self
 
     def proxy_port(self, port: int):
-        self.__proxy_port = str(port)
+        port_str: str = str(port)
+        self.__proxy_port = port_str
+        os.environ["PROXY_HTTP_PORT"] = port_str
         return self
 
     def actor_system(self, system: str = None):
@@ -93,13 +98,16 @@ class Spawn:
 
     def start(self):
         """Start the user function and HTTP Server."""
+        import time
         if not self.__system:
             raise Exception(
                 "ActorSystem cannot be None. Use actor_system function to set an ActorSystem")
 
         address = "{}:{}".format(self.__host, self.__port)
+        client = SpawnClient()
+
         self.__controller = ActorController(
-            self.__proxy_host, self.__proxy_port, self.__system, self.__actor_entities)
+            client, self.__system, self.__actor_entities)
 
         self.__app = create_app(controller=self.__controller)
 
@@ -111,8 +119,8 @@ class Spawn:
         try:
             server.start()
             client.start()
-            server.join()
-            client.join()
+            # temporary
+            time.sleep(2)
         except IOError as e:
             logging.error("Error on start Spawn %s", e.__cause__)
 

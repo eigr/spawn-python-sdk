@@ -5,13 +5,13 @@ Licensed under the Apache License, Version 2.0.
 """
 import logging
 import platform
-import requests
 
 from spawn.eigr.functions.actors.api.actor import Actor as ActorEntity
 from spawn.eigr.functions.actors.api.actor import ActorHandler
 from spawn.eigr.functions.actors.api.context import Context as ActorContext
 from spawn.eigr.functions.actors.api.value import Value, ReplyKind
 from spawn.eigr.functions.actors.api.settings import Kind as ActorKind
+from spawn.eigr.functions.actors.internal.client import SpawnClient
 
 from spawn.eigr.functions.protocol.actors.actor_pb2 import (
     Actor,
@@ -42,25 +42,11 @@ from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.any_pb2 import Any as AnyProto
 
-from requests.adapters import HTTPAdapter, Retry
-
 from typing import MutableMapping
 
 _sym_db = _symbol_database.Default()
 
-_DEFAULT_HEADERS = {
-    "Accept": "application/octet-stream",
-    "Content-Type": "application/octet-stream",
-}
-_DEFAULT_MAX_RETRIES = 100
-_DEFAULT_MAX_RETRIES_BACKOFF_FACTOR = 0.2
-_REGISTER_URI = "/api/v1/system"
 TYPE_URL_PREFIX = 'type.googleapis.com/'
-
-req = requests.Session()
-retries = Retry(total=_DEFAULT_MAX_RETRIES,
-                backoff_factor=_DEFAULT_MAX_RETRIES_BACKOFF_FACTOR)
-req.mount('http://', HTTPAdapter(max_retries=retries))
 
 
 def get_payload(input):
@@ -126,9 +112,8 @@ def handle_broadcast(value_broadcast):
 class ActorController:
     _instance = None
 
-    def __init__(self, host: str, port: str, system: str, actors: MutableMapping[str, ActorEntity]):
-        self.host = host
-        self.port = port
+    def __init__(self, client: SpawnClient, system: str, actors: MutableMapping[str, ActorEntity]):
+        self.client = client
         self.system = system
         self.actors = actors
 
@@ -180,19 +165,16 @@ class ActorController:
         return handle_response(actor_system, actor_name, result)
 
     def register(self):
-        logging.info("Registering Actors on the Proxy %s", self.actors)
+        logging.info("Registering Actors on the Proxy")
         try:
-
-            proxy_url = "http://{}:{}{}".format(self.host,
-                                                self.port, _REGISTER_URI)
 
             registry = Registry()
             actor_system = ActorSystem()
             actor_system.name = self.system
 
             for actor_name, entity in self.actors.items():
-                logging.info("Registering Actor %s with Config %s",
-                             actor_name, entity)
+                logging.debug("Registering Actor %s with Config %s",
+                              actor_name, entity)
 
                 # Create actor params via ActorEntity
                 actor_template = Actor()
@@ -289,12 +271,7 @@ class ActorController:
             request.service_info.CopyFrom(service_info)
             request.actor_system.CopyFrom(actor_system)
 
-            binary_payload = request.SerializeToString()
-
-            resp = req.post(
-                proxy_url, data=binary_payload, headers=_DEFAULT_HEADERS
-            )
-
+            resp = self.client.register(request)
             logging.info("Actors register response %s", resp)
         except Exception as e:
             logging.error("ERROR: %s", e)
