@@ -24,7 +24,7 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
 
 ## Overview
 
-Spawn is a Stateful Serverless Runtime and Framework basead on the Actor Model and operates as a Service Mesh.
+Spawn is a Stateful Serverless Runtime and Framework basead on the [Actor Model](https://youtu.be/7erJ1DV_Tlo) and operates as a Service Mesh.
 
 Spawn's main goal is to remove the complexity in developing microservices, providing simple and intuitive APIs, as well as a declarative deployment and configuration model and based on a Serverless architecture and Actor Model.
 This leaves the developer to focus on developing the business domain while the platform deals with the complexities and infrastructure needed to support the scalable, resilient, distributed, and event-driven architecture that microservices-driven systems requires.
