@@ -67,7 +67,7 @@ class Value():
         self.__metadata = metadata
         return self
 
-    def value(self, value):
+    def response(self, value):
         self.__response = value
         return self
 

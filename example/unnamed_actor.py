@@ -14,9 +14,10 @@ abstract = Actor(settings=ActorSettings(
 
 @abstract.action("setLanguage")
 def set_language(request: Request, ctx: Context) -> Value:
+    print("Current State -> " + str(ctx.state))
+
     reply = Reply()
     reply.response = "erlang"
-    print("Current State -> " + str(ctx.state))
     new_state = State()
     new_state.languages.append("python")
-    return Value().value(reply).state(new_state).reply()
+    return Value().of(reply, new_state).reply()
