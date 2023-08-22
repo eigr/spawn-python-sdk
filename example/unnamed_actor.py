@@ -14,6 +14,7 @@ abstract = Actor(settings=ActorSettings(
 
 @abstract.action("setLanguage")
 def set_language(request: Request, ctx: Context) -> Value:
+    print("Request -> " + str(request))
     print("Current State -> " + str(ctx.state))
 
     reply = Reply()

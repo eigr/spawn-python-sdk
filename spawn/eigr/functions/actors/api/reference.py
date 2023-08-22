@@ -46,6 +46,7 @@ class ActorRef:
     def invoke(self, action: str, request: any = None, async_mode: bool = False, pooled: bool = False):
         req: InvocationRequest = self.__build_request(
             action, request, async_mode, pooled)
+
         resp: InvocationResponse = self.__spawn_client.invoke(
             self.actor_system, self.actor_name, req)
 

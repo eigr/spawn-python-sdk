@@ -6,11 +6,16 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
 1. [Overview](#overview)
 2. [Getting Started](#getting-started)
 3. [Advanced Use Cases](#advanced-use-cases)
+   - [Types of Actors](#types-of-actors)
    - [Side Effects](#side-effects)
    - [Broadcast](#broadcast)
    - [Forward](#forward)
    - [Pipe](#pipe)
-4. [Deploy](#deploy)
+4. [Using Actors](#using-actors)
+   - [Call Named Actors](#call-named-actors)
+   - [Call Unnamed Actors](#call-unnamed-actors)
+   - [Async and other options](#async-and-other-options)
+5. [Deploy](#deploy)
    - [Packing with Containers](#packing-with-containers)
    - [Defining an ActorSytem](#defining-an-actorsytem)
    - [Defining an ActorHost](#defining-an-actorhost)
@@ -137,11 +142,25 @@ And this is it to start! Now that you know the basics of local development, we c
 ## Advanced Use Cases
 TODO
 
+### Types of Actors
+TODO
+
 ### Side Effects
 TODO
 
 ### Broadcast
-TODO
+
+Actors in Spawn can subscribe to a thread and receive, as well as broadcast, events for a given thread.
+
+To consume from a topic, you just need to configure the Actor decorator using the channel option as follows:
+
+```python
+actor = Actor(settings=ActorSettings(
+    name="joe", stateful=True, channel="test"))
+```
+In the case above, the Actor `joe` was configured to receive events that are forwarded to the topic called `test`.
+
+To produce events in a topic, just use the Broadcast Workflow. The example below demonstrates a complete example of producing and consuming events. In this case, the same actor is the event consumer and producer, but in a more realistic scenario, different actors would be involved in these processes.
 
 ```python
 from domain.domain_pb2 import JoeState, Request, Reply
@@ -188,6 +207,48 @@ def set_language(request: Request, ctx: Context) -> Value:
 TODO
 
 ### Pipe
+TODO
+
+## Using Actors
+
+### Call Named Actors
+
+```python
+# Get abstract actor reference called mike
+actor: ActorRef = Spawn.create_actor_ref(
+    system="spawn-system",
+    actor_name="joe"
+)
+
+request = Request()
+request.language = "erlang"
+
+(status, result) = actor.invoke(
+    action="setLanguage", request=request)
+print("Invocation Result Status: " + status)
+print("Invocation Result Value:  " + str(result.response))
+```
+
+### Call Unnamed Actors
+
+```python
+# Get abstract actor reference called mike
+actor: ActorRef = Spawn.create_actor_ref(
+    system="spawn-system",
+    actor_name="mike",
+    parent="abs_actor"
+)
+
+request = Request()
+request.language = "erlang"
+
+(status, result) = actor.invoke(
+    action="setLanguage", request=request)
+print("Invocation Result Status: " + status)
+print("Invocation Result Value:  " + str(result.response))
+```
+
+### Async calls and other options
 TODO
 
 ## Deploy
