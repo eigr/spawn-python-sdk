@@ -4,6 +4,7 @@ Licensed under the Apache License, Version 2.0.
 """
 from spawn.eigr.functions.actors.api.reference import ActorRef
 from spawn.eigr.functions.actors.api.sdk import Spawn
+
 from example.joe import actor as joe_actor
 from example.unnamed_actor import abstract
 from example.domain.domain_pb2 import Request
@@ -20,8 +21,9 @@ if __name__ == "__main__":
     mike_actor: ActorRef = Spawn.create_actor_ref(
         system="spawn-system",
         actor_name="mike",
-        parent="abs_actor",
-        state_revision=1
+        parent="abs_actor"
     )
 
-    # mike_actor.invoke(request)
+    (status, result) = mike_actor.invoke("setLanguage", request)
+    print("Invocation Result Status: " + status)
+    print("Invocation Result Value:  " + str(result.response))

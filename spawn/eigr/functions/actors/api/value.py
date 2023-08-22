@@ -88,6 +88,7 @@ class Value():
         return self
 
     def reply(self):
+        self.__reply_kind = ReplyKind.REPLY
         return self
 
     def noreply(self):

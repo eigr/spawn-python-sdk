@@ -26,7 +26,6 @@ def create_app(controller: ActorController):
 
     @app.route('/api/v1/actors/actions', methods=["POST"])
     def action():
-        print(request)
         data = request.data
 
         actor_invocation_response = controller.handle_invoke(data)

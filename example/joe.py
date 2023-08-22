@@ -2,7 +2,7 @@
 Copyright 2022 Eigr.
 Licensed under the Apache License, Version 2.0.
 """
-from domain.domain_pb2 import JoeState, Request, Reply
+from domain.domain_pb2 import State, Request, Reply
 from spawn.eigr.functions.actors.api.actor import Actor
 from spawn.eigr.functions.actors.api.settings import ActorSettings
 from spawn.eigr.functions.actors.api.context import Context
@@ -24,7 +24,7 @@ def hi(ctx: Context) -> Value:
     broadcast.value = request
 
     if not ctx.state:
-        new_state = JoeState()
+        new_state = State()
         new_state.languages.append("python")
     else:
         new_state = ctx.state
@@ -39,4 +39,7 @@ def hi(ctx: Context) -> Value:
 def set_language(request: Request, ctx: Context) -> Value:
     reply = Reply()
     reply.response = "erlang"
-    return Value().of(reply, ctx.state).reply()
+    print("Current State -> " + str(ctx.state))
+    new_state = State()
+    new_state.languages.append("python")
+    return Value().value(reply).state(new_state).reply()

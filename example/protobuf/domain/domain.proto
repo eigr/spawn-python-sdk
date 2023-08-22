@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package domain;
+
+message State {
+  repeated string languages = 1;
+}
+
+message Request {
+  string language = 1;
+}
+
+message Reply {
+  string response = 1;
+}

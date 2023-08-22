@@ -51,8 +51,13 @@ TYPE_URL_PREFIX = 'type.googleapis.com/'
 
 def get_payload(input):
     input_type: str = input.type_url
+
+    if not input_type:
+        return None
+
     if input_type.startswith(TYPE_URL_PREFIX):
         input_type = input_type[len(TYPE_URL_PREFIX):]
+
     input_class = _sym_db.GetSymbol(input_type)
     result = input_class()
     result.ParseFromString(input.value)
@@ -78,13 +83,16 @@ def handle_response(system, actor_name, result):
     if result.get_metadata() != None and len(result.get_metadata().get_tags()) > 0:
         updated_context.tags = result.get_metadata().get_tags()
 
-    updated_context.state.CopyFrom(pack(result.get_state()))
+    updated_state = result.get_state()
+
+    if updated_state != None:
+        updated_context.state.CopyFrom(pack(updated_state))
 
     actor_invocation_response.updated_context.CopyFrom(updated_context)
 
-    if result.get_reply_kind() == ReplyKind.NO_REPLY:
+    if result.get_reply_kind() is ReplyKind.NO_REPLY:
         actor_invocation_response.noop.CopyFrom(Noop())
-    elif result.get_reply_kind == ReplyKind.REPLY:
+    else:
         actor_invocation_response.value.CopyFrom(pack(result.get_response()))
 
     if result.get_broadcast() != None:
@@ -144,8 +152,10 @@ class ActorController:
         handler = ActorHandler(entity)
         current_context = actor_invocation.current_context
 
-        state = None if current_context.state == None else get_payload(
-            current_context.state)
+        current_state = current_context.state
+        state = None
+        if current_state != None:
+            state = get_payload(current_state)
 
         input = None if actor_invocation.WhichOneof(
             "payload") == "noop" else get_payload(actor_invocation.value)
