@@ -19,10 +19,20 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
    - [Packing with Containers](#packing-with-containers)
    - [Defining an ActorSytem](#defining-an-actorsytem)
    - [Defining an ActorHost](#defining-an-actorhost)
+   - [Activators](#activators)
 
 
 ## Overview
-TODO
+
+Spawn is a Stateful Serverless Runtime and Framework basead on the Actor Model and operates as a Service Mesh.
+
+Spawn's main goal is to remove the complexity in developing microservices, providing simple and intuitive APIs, as well as a declarative deployment and configuration model and based on a Serverless architecture and Actor Model.
+This leaves the developer to focus on developing the business domain while the platform deals with the complexities and infrastructure needed to support the scalable, resilient, distributed, and event-driven architecture that microservices-driven systems requires.
+
+Spawn is based on the sidecar proxy pattern to provide a polyglot Actor Model framework and platform.
+Spawn's technology stack, built on the [BEAM VM](https://www.erlang.org/blog/a-brief-beam-primer/) (Erlang's virtual machine) and [OTP](https://www.erlang.org/doc/design_principles/des_princ.html), provides support for different languages from its native Actor model.
+
+For more information consult the main repository [documentation](https://github.com/eigr/spawn).
 
 ## Getting Started
 
@@ -140,10 +150,18 @@ poetry run python3 spawn_py_demo/main.py
 And this is it to start! Now that you know the basics of local development, we can go a little further.
 
 ## Advanced Use Cases
-TODO
+
+Spawn Actors abstract a huge amount of developer infrastructure and can be used for many different types of jobs. In the sections below we will demonstrate some of the features available in Spawn that contribute to the development of complex applications in a simplified way.
 
 ### Types of Actors
-TODO
+
+First we need to understand how the various types of actors available in Spawn behave. Spawn defines the following types of Actors:
+
+* **Named Actors**: Named actors are actors whose name is defined at compile time. They also behave slightly differently than unnamed actors and pooled actors. Named actors when they are defined with the stateful parameter equal to True are immediately instantiated when they are registered at the beginning of the program, they can also only be referenced by the name given to them in their definition.
+
+* **Unnamed Actors**: Unlike named actors, unnamed actors are only created when they are named at runtime, that is, during program execution. Otherwise they behave like named actors.
+
+* **Pooled Actors**: Pooled Actors, as the name suggests, are a collection of actors that are grouped under the same name assigned to them at compile time. Pooled actors are generally used when higher performance is needed and are also recommended for handling serverless loads.
 
 ### Side Effects
 TODO
@@ -211,7 +229,15 @@ TODO
 
 ## Using Actors
 
+There are several ways to interact with our actors, some internal to the application code and others external to the application code. In this section we will deal with the internal ways of interacting with our actors and this will be done through direct calls to them. For more details on the external ways to interact with your actors see the [Activators](#activators) section.
+
+In order to be able to call methods of an Actor, we first need to get a reference to the actor. This is done with the help of the static method `create_actor_ref` of the `Spawn` class. This method accepts some arguments, the most important being `system`, `actor_name` and `parent`. 
+
+In the sections below we will give some examples of how to invoke different types of actors in different ways.
+
 ### Call Named Actors
+
+To invoke an actor named like the one we defined in section [Getting Started](#getting-started) we could do as follows:
 
 ```python
 # Get abstract actor reference called mike
@@ -229,7 +255,47 @@ print("Invocation Result Status: " + status)
 print("Invocation Result Value:  " + str(result.response))
 ```
 
+Calls like the one above, that is, synchronous calls, always returned a tuple composed of the invocation status message and the response object emitted by the Actor.
+
 ### Call Unnamed Actors
+
+Unnamed actors are equally simple to invoke. All that is needed is to inform the `parent` parameter which refers to the name given to the actor that defines the ActorRef template.
+
+To better exemplify, let's first show the Actor's definition code and later how we would call this actor with a concrete name at runtime:
+
+```python
+from domain.domain_pb2 import State, Request, Reply
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings, Kind
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.value import Value
+
+abstract = Actor(settings=ActorSettings(
+    name="abs_actor", stateful=True, kind=Kind.UNNAMED))
+
+
+@abstract.action("setLanguage")
+def set_language(request: Request, ctx: Context) -> Value:
+    print("Request -> " + str(request))
+    print("Current State -> " + str(ctx.state))
+
+    reply = Reply()
+    reply.response = "erlang"
+    new_state = State()
+    new_state.languages.append("python")
+    return Value().of(reply, new_state).reply()
+```
+
+The important part of the code above is the following snippet:
+
+```python
+abstract = Actor(settings=ActorSettings(
+    name="abs_actor", stateful=True, kind=Kind.UNNAMED))
+```
+
+This tells Spawn that this actor will actually be named at runtime. The name parameter in this case is just a reference that will be used later so that we can actually create an instance of the real Actor.
+
+Finally below we will see how to invoke such an actor. We'll name the royal actor "mike":
 
 ```python
 # Get abstract actor reference called mike
@@ -249,17 +315,30 @@ print("Invocation Result Value:  " + str(result.response))
 ```
 
 ### Async calls and other options
-TODO
+
+Basically Spawn can perform actor functions in two ways. Synchronously, where the callee waits for a response, or asynchronously, where the callee doesn't care about the return value of the call. In this context we should not confuse Spawn's asynchronous way with Python's concept of async because async for Spawn is just a fire-and-forget call.
+
+Therefore, to call an actor's function asynchronously, just inform the parameter async_mode with the value True:
+
+```python
+some_actor.invoke(
+    action="setLanguage", request=request, async_mode=True)
+```
 
 ## Deploy
-TODO
+
+See [Getting Started](https://github.com/eigr/spawn#getting-started) section from the main Spawn repository for more details on how to deploy a Spawn application.
 
 ### Packing with Containers 
 TODO
 
 ### Defining an ActorSytem
-TODO
+
+See [Getting Started](https://github.com/eigr/spawn#getting-started) section from the main Spawn repository for more details on how to define an ActorSystem.
 
 ### Defining an ActorHost
-TODO 
-   
+
+See [Getting Started](https://github.com/eigr/spawn#getting-started) section from the main Spawn repository for more details on how to define an ActorHost.
+
+### Activators
+TODO
