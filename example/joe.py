@@ -37,10 +37,11 @@ def hi(ctx: Context) -> Value:
 
 @actor.action("setLanguage")
 def set_language(request: Request, ctx: Context) -> Value:
+    print("Request -> " + str(request))
     print("Current State -> " + str(ctx.state))
 
     reply = Reply()
     reply.response = "erlang"
     new_state = State()
-    new_state.languages.append("python")
+    new_state.languages.append("erlang")
     return Value().response(reply).state(new_state).reply()
