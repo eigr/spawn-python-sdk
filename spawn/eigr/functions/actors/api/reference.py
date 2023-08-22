@@ -43,14 +43,15 @@ class ActorRef:
             spawn(self.__spawn_client, self.actor_system,
                   self.actor_name, self.actor_parent, self.revision)
 
-    def invoke(self, action: str, request: any = None):
-        req: InvocationRequest = self.__build_request(action, request)
+    def invoke(self, action: str, request: any = None, async_mode: bool = False, pooled: bool = False):
+        req: InvocationRequest = self.__build_request(
+            action, request, async_mode, pooled)
         resp: InvocationResponse = self.__spawn_client.invoke(
             self.actor_system, self.actor_name, req)
 
         return self.__build_result(resp)
 
-    def __build_request(self, action: str, request: any):
+    def __build_request(self, action: str, request: any, async_mode: bool = False, pooled: bool = False):
         req: InvocationRequest = InvocationRequest()
         system = ActorSystem()
         system.name = self.actor_system
@@ -65,6 +66,8 @@ class ActorRef:
         req.system.CopyFrom(system)
         req.actor.CopyFrom(actor)
         req.action_name = action
+        req.pooled = pooled
+        setattr(req, 'async', async_mode)
 
         if request != None:
             req.value.CopyFrom(pack(request))

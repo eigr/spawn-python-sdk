@@ -14,8 +14,9 @@ if __name__ == "__main__":
     request.language = "erlang"
 
     spawn = Spawn()
+    # .add_actor(joe_actor)
     spawn.port(8091).proxy_port(9003).actor_system(
-        "spawn-system").add_actor(joe_actor).add_actor(abstract).start()
+        "spawn-system").add_actor(abstract).start()
 
     # Get abstract actor reference called mike
     mike_actor: ActorRef = Spawn.create_actor_ref(
@@ -24,6 +25,7 @@ if __name__ == "__main__":
         parent="abs_actor"
     )
 
-    (status, result) = mike_actor.invoke("setLanguage", request)
+    (status, result) = mike_actor.invoke(
+        action="setLanguage", request=request)
     print("Invocation Result Status: " + status)
     print("Invocation Result Value:  " + str(result.response))
