@@ -165,7 +165,9 @@ def to_effect(ef: Effect):
 def handle_broadcast(value_broadcast):
     broadcast = Broadcast()
     broadcast.channel_group = value_broadcast.channel
-    broadcast.action_name = value_broadcast.action_name
+
+    if value_broadcast.action_name:
+        broadcast.action_name = value_broadcast.action_name
 
     if value_broadcast.value == None:
         broadcast.noop = Noop()
