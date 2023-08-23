@@ -423,7 +423,10 @@ some_actor.invoke(
 See [Getting Started](https://github.com/eigr/spawn#getting-started) section from the main Spawn repository for more details on how to deploy a Spawn application.
 
 ### Packing with Containers 
-TODO
+
+Spawn is a k8s based runtime and therefore your workloads should be made up of containers.
+
+So all you need to do is create a container with your Python application. There are several tutorials on the internet that can help you with this process and we will not go into detail in this document.
 
 ### Defining an ActorSytem
 
