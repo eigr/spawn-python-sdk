@@ -1,7 +1,8 @@
 # pylint: disable=too-few-public-methods
 # pylint: disable=arguments-differ
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+from typing import List
 
 from spawn.eigr.functions.actors.api.metadata import Metadata
 from spawn.eigr.functions.actors.api.workflows.broadcast import Broadcast
@@ -22,7 +23,7 @@ class Value():
     __response = None
     __metadata: Metadata = None
     __broadcast: Broadcast = None
-    __effect: Effect = None
+    __effects: List[Effect] = field(default_factory=list)
     __forward: Forward = None
     __pipe: Pipe = None
     __reply_kind: ReplyKind = ReplyKind.REPLY
@@ -42,8 +43,8 @@ class Value():
     def get_broadcast(self):
         return self.__broadcast
 
-    def get_effect(self):
-        return self.__effect
+    def get_effects(self):
+        return self.__effects
 
     def get_forward(self):
         return self.__forward
@@ -76,14 +77,22 @@ class Value():
         return self
 
     def effect(self, effect: Effect):
-        self.__effect = effect
+        self.__effects.append(effect)
         return self
 
     def forward(self, forward: Forward):
+        if self.__pipe:
+            raise Exception(
+                "You can only use either Pipe or Forward never both")
+
         self.__forward = forward
         return self
 
     def pipe(self, pipe: Pipe):
+        if self.__forward:
+            raise Exception(
+                "You can only use either Forward or Pipe never both")
+
         self.__pipe = pipe
         return self
 

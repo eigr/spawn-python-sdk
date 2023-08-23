@@ -7,8 +7,8 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
 2. [Getting Started](#getting-started)
 3. [Advanced Use Cases](#advanced-use-cases)
    - [Types of Actors](#types-of-actors)
-   - [Side Effects](#side-effects)
    - [Broadcast](#broadcast)
+   - [Side Effects](#side-effects)
    - [Forward](#forward)
    - [Pipe](#pipe)
 4. [Using Actors](#using-actors)
@@ -163,9 +163,6 @@ First we need to understand how the various types of actors available in Spawn b
 
 * **Pooled Actors**: Pooled Actors, as the name suggests, are a collection of actors that are grouped under the same name assigned to them at compile time. Pooled actors are generally used when higher performance is needed and are also recommended for handling serverless loads.
 
-### Side Effects
-TODO
-
 ### Broadcast
 
 Actors in Spawn can subscribe to a thread and receive, as well as broadcast, events for a given thread.
@@ -221,11 +218,107 @@ def set_language(request: Request, ctx: Context) -> Value:
     return Value().of(reply, ctx.state).reply()
 ```
 
+### Side Effects
+
+Actors can also emit side effects to other Actors as part of their response.
+See an example:
+
+```python
+from domain.domain_pb2 import State, Request, Reply
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.effect import Effect
+
+
+actor = Actor(settings=ActorSettings(name="joe", stateful=True))
+
+
+@actor.timer_action(every=1000)
+def hi(ctx: Context) -> Value:
+    new_state = None
+    request = Request()
+    request.language = "python"
+
+    effect: Effect = Effect(action="setLanguage", payload=request,
+                            system="spawn-system", actor="mike", parent="abs_actor")
+
+    if not ctx.state:
+        new_state = State()
+        new_state.languages.append("python")
+    else:
+        new_state = ctx.state
+
+    return Value()\
+        .effect(effect)\
+        .state(new_state)\
+        .noreply()
+
+```
+
+Side effects such as broadcast are not part of the response flow to the caller. They are request-asynchronous events that are emitted after the Actor's state has been saved in memory.
+
 ### Forward
-TODO
+
+Actors can route some actions to other actors as part of their response. For example, sometimes you may want another Actor to be responsible for processing a message that another Actor has received. We call this forwarding and it occurs when we want to forward the input argument of a request that a specific Actor has received to the input of an action in another Actor.
+
+See an example:
+
+```python
+from domain.domain_pb2 import Request
+
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.forward import Forward
+
+actor = Actor(settings=ActorSettings(name="joe", stateful=True))
+
+@actor.action("setLanguage")
+def set_language(request: Request, ctx: Context) -> Value:
+    return Value()\
+        .forward(Forward("mike", "setLanguage"))\
+        .reply()
+```
 
 ### Pipe
-TODO
+
+Similarly, sometimes we want to chain a request through several different processes. For example forwarding an actor's computational output as another actor's input. There is this type of routing we call Pipe, as the name suggests, a pipe forwards what would be the response of the received request to the input of another Action in another Actor.
+In the end, just like in a Forward, it is the response of the last Actor in the chain of routing to the original caller.
+
+Example:
+
+```python
+from domain.domain_pb2 import State, Request, Reply
+
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.pipe import Pipe
+
+actor = Actor(settings=ActorSettings(name="joe", stateful=True))
+
+@actor.action("setLanguage")
+def set_language(request: Request, ctx: Context) -> Value:
+    reply = Reply()
+    reply.language = "python"
+
+    if not ctx.state:
+        new_state = State()
+        new_state.languages.append("python")
+    else:
+        new_state = ctx.state
+
+    return Value()\
+        .response(reply)\
+        .pipe(Pipe("mike", "setLanguage"))\
+        .reply()
+```
+
+Forwards and pipes do not have an upper thread limit other than the request timeout.
 
 ## Using Actors
 

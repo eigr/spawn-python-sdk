@@ -8,10 +8,12 @@ import platform
 
 from spawn.eigr.functions.actors.api.actor import Actor as ActorEntity
 from spawn.eigr.functions.actors.api.actor import ActorHandler
+
 from spawn.eigr.functions.actors.api.context import Context as ActorContext
 from spawn.eigr.functions.actors.api.value import Value, ReplyKind
 from spawn.eigr.functions.actors.api.settings import Kind as ActorKind
 from spawn.eigr.functions.actors.internal.client import SpawnClient
+from spawn.eigr.functions.actors.api.workflows.effect import Effect
 
 from spawn.eigr.functions.protocol.actors.actor_pb2 import (
     Actor,
@@ -32,12 +34,17 @@ from spawn.eigr.functions.protocol.actors.actor_pb2 import (
 from spawn.eigr.functions.protocol.actors.protocol_pb2 import (
     ActorInvocation,
     ActorInvocationResponse,
+    Broadcast,
+    Forward,
     Context,
+    InvocationRequest,
     Noop,
+    Pipe,
     RegistrationRequest,
-    ServiceInfo,
-    Broadcast
+    ServiceInfo
 )
+
+from spawn.eigr.functions.protocol.actors.protocol_pb2 import SideEffect as SpawnEffect
 
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.any_pb2 import Any as AnyProto
@@ -100,7 +107,59 @@ def handle_response(system, actor_name, result):
         broadcast = handle_broadcast(value_broadcast)
         actor_invocation_response.workflow.broadcast.CopyFrom(broadcast)
 
+    if result.get_effects():
+        effects = list(map(lambda ef: to_effect(ef), [
+                       ef for ef in result.get_effects()]))
+
+        actor_invocation_response.workflow.effects.extend(effects)
+
+    if result.get_forward() != None:
+        f = result.get_forward()
+        forward = Forward()
+        forward.actor = f.actor
+        forward.action_name = f.action
+        actor_invocation_response.workflow.forward.CopyFrom(forward)
+
+    if result.get_pipe() != None:
+        p = result.get_pipe()
+        pipe = Pipe()
+        pipe.actor = p.actor
+        pipe.action_name = p.action
+        actor_invocation_response.workflow.pipe.CopyFrom(pipe)
+
     return actor_invocation_response
+
+
+def to_effect(ef: Effect):
+    # We initialize a ref actor here to ensure the target actor exists.
+    # This costs one more sidecar call but avoids actor not found errors
+    from spawn.eigr.functions.actors.api.reference import ActorRef
+    ref = ActorRef(SpawnClient(), ef.system, ef.actor, ef.parent)
+
+    req: InvocationRequest = InvocationRequest()
+    system = ActorSystem()
+    system.name = ref.actor_system
+
+    actor_id = ActorId()
+    actor_id.name = ref.actor_name
+    actor_id.system = ref.actor_system
+
+    actor = Actor()
+    actor.id.CopyFrom(actor_id)
+
+    req.system.CopyFrom(system)
+    req.actor.CopyFrom(actor)
+    req.action_name = ef.action
+    req.pooled = False
+    setattr(req, 'async', True)
+
+    if ef.payload != None:
+        req.value.CopyFrom(pack(ef.payload))
+
+    side_effect: SpawnEffect = SpawnEffect()
+    side_effect.request.CopyFrom(req)
+
+    return side_effect
 
 
 def handle_broadcast(value_broadcast):
