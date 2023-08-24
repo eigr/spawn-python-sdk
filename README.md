@@ -147,6 +147,55 @@ Then:
 poetry run python3 spawn_py_demo/main.py
 ```
 
+But of course you will need to locally run the our Elixir proxy which will actually provide all the functionality for your Python application. One way to do this is to create a docker-compose file containing all the services that your application depends on, in this case, in addition to the Spawn proxy, it also has a database and possibly a nats broker if you want access to more advanced Spawn features.
+
+```docker-compose
+version: "3.8"
+services:
+  mariadb:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: eigr-functions-db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    volumes:
+      - mariadb:/var/lib/mysql
+    ports:
+      - "3307:3306"
+  nats:
+    image: nats:0.8.0
+    entrypoint: "/gnatsd -DV"
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+  spawn-proxy:
+    build:
+      context: https://github.com/eigr/spawn.git#main
+      dockerfile: ./Dockerfile-proxy
+    restart: always
+    network_mode: "host"
+    environment:
+      SPAWN_USE_INTERNAL_NATS: "true"
+      SPAWN_PUBSUB_ADAPTER: nats
+      SPAWN_STATESTORE_KEY: 3Jnb0hZiHIzHTOih7t2cTEPEpY98Tu1wvQkPfq/XwqE=
+      PROXY_APP_NAME: spawn
+      PROXY_CLUSTER_STRATEGY: gossip
+      PROXY_DATABASE_PORT: 3307
+      PROXY_DATABASE_TYPE: mariadb
+      PROXY_HTTP_PORT: 9003
+      USER_FUNCTION_PORT: 8091
+    depends_on:
+      - mariadb
+      - nats
+networks:
+  mysql-compose-network:
+    driver: bridge
+volumes:
+  mariadb:
+
+```
+
 And this is it to start! Now that you know the basics of local development, we can go a little further.
 
 ## Advanced Use Cases
