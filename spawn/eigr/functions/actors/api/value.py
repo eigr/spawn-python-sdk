@@ -27,6 +27,7 @@ class Value():
     __forward: Forward = None
     __pipe: Pipe = None
     __reply_kind: ReplyKind = ReplyKind.REPLY
+    __checkpoint: bool = False
 
     def get_state(self):
         return self.__state
@@ -54,6 +55,9 @@ class Value():
 
     def get_reply_kind(self):
         return self.__reply_kind
+
+    def has_checkpoint(self):
+        return self.__checkpoint
 
     def of(self, value, state=None):
         self.__response = value
@@ -96,10 +100,12 @@ class Value():
         self.__pipe = pipe
         return self
 
-    def reply(self):
+    def reply(self, checkpoint: bool = False):
         self.__reply_kind = ReplyKind.REPLY
+        self.__checkpoint = checkpoint
         return self
 
-    def noreply(self):
+    def noreply(self, checkpoint: bool = False):
         self.__reply_kind = ReplyKind.NO_REPLY
+        self.__checkpoint = checkpoint
         return self

@@ -127,6 +127,9 @@ def handle_response(system, actor_name, result):
         pipe.action_name = p.action
         actor_invocation_response.workflow.pipe.CopyFrom(pipe)
 
+    if result.has_checkpoint():
+        actor_invocation_response.checkpoint = True
+
     return actor_invocation_response
 
 
