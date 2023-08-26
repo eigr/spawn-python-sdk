@@ -11,6 +11,7 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
    - [Side Effects](#side-effects)
    - [Forward](#forward)
    - [Pipe](#pipe)
+   - [State Management](#state-management)
 4. [Using Actors](#using-actors)
    - [Call Named Actors](#call-named-actors)
    - [Call Unnamed Actors](#call-unnamed-actors)
@@ -368,6 +369,57 @@ def set_language(request: Request, ctx: Context) -> Value:
 ```
 
 Forwards and pipes do not have an upper thread limit other than the request timeout.
+
+### State Management
+
+The Spawn runtime handles the internal state of your actors. It is he who maintains its state based on the types of actors and configurations that you, the developer, have made.
+The persistence of the state of the actors happens through snapshots that follow the Write Behind pattern during the period in which the Actor is active and Write Ahead during the moment of the Actor's deactivation. That is, data is saved at regular intervals asynchronously while the Actor is active and once synchronously when the Actor suffers a deactivation, when it is turned off.
+These snapshots happen from time to time. And this time is configurable through the snapshot_timetou property of the ActorSettings class. However, you can tell the Spawn runtime that you want it to persist the data immediately synchronously after executing an Action. And this can be done in the following way:
+
+Example:
+
+```python
+from domain.domain_pb2 import State, Request, Reply
+
+from spawn.eigr.functions.actors.api.actor import Actor
+from spawn.eigr.functions.actors.api.settings import ActorSettings
+from spawn.eigr.functions.actors.api.context import Context
+from spawn.eigr.functions.actors.api.value import Value
+from spawn.eigr.functions.actors.api.workflows.pipe import Pipe
+
+actor = Actor(settings=ActorSettings(name="joe", stateful=True, snapshot_timeout=2000))
+
+@actor.action("setLanguage")
+def set_language(request: Request, ctx: Context) -> Value:
+    reply = Reply()
+    reply.language = "python"
+
+    if not ctx.state:
+        new_state = State()
+        new_state.languages.append("python")
+    else:
+        new_state = ctx.state
+
+    return Value()\
+        .response(reply)\
+        .pipe(Pipe("mike", "setLanguage"))\
+        .reply(checkpoint=True)
+```
+
+The most important thing in this example is the use of the parameter checkpoint=True:
+
+```python
+.reply(checkpoint=True)
+```
+
+It is this parameter that will indicate to the Spawn runtime that you want the data to be saved immediately after this Action is called back.
+In most cases this strategy is completely unnecessary, as the default strategy is sufficient for most use cases. But Spawn democratically lets you choose when you want your data persisted.
+
+In addition to this functionality regarding state management, Spawn also allows you to perform some more operations on your Actors such as restoring the actor's state to a specific point in time:
+
+Restore Example:
+
+TODO
 
 ## Using Actors
 
