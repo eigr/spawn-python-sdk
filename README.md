@@ -21,6 +21,8 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
    - [Defining an ActorSytem](#defining-an-actorsytem)
    - [Defining an ActorHost](#defining-an-actorhost)
    - [Activators](#activators)
+6. [Actor Model](#actor-model)
+   - [Virtual Actors](#virtual-actors)
 
 
 ## Overview
@@ -212,6 +214,10 @@ First we need to understand how the various types of actors available in Spawn b
 * **Unnamed Actors**: Unlike named actors, unnamed actors are only created when they are named at runtime, that is, during program execution. Otherwise they behave like named actors.
 
 * **Pooled Actors**: Pooled Actors, as the name suggests, are a collection of actors that are grouped under the same name assigned to them at compile time. Pooled actors are generally used when higher performance is needed and are also recommended for handling serverless loads.
+
+Another important feature of Spawn Actors is that the lifecycle of each Actor is managed by the platform itself. This means that an Actor will exist when it is invoked and that it will be deactivated after an idle time in its execution. This pattern is known as [Virtual Actors](#virtual-actors) but Spawn's implementation differs from some other known frameworks like [Orleans](https://www.microsoft.com/en-us/research/project/orleans-virtual-actors/) or [Dapr](https://docs.dapr.io/developing-applications/building-blocks/actors/actors-overview/) by defining a specific behavior depending on the type of Actor (named, unnamed, pooled, and etc...). 
+
+For example, named actors are instantiated the first time as soon as the host application registers them with the Spawn proxy. Whereas unnamed and pooled actors are instantiated the first time only when they receive their first invocation call.
 
 ### Broadcast
 
@@ -541,3 +547,35 @@ See [Getting Started](https://github.com/eigr/spawn#getting-started) section fro
 
 ### Activators
 TODO
+
+## Actor Model
+
+According to Wikipedia Actor Model is:
+
+"A mathematical model of concurrent computation that treats actor as the universal primitive of concurrent computation. In response to a message it receives, an actor can: make local decisions, create more actors, send more messages, and determine how to respond to the next message received. Actors may modify their own private state, but can only affect each other indirectly through messaging (removing the need for lock-based synchronization).
+
+The actor model originated in 1973. It has been used both as a framework for a theoretical understanding of computation and as the theoretical basis for several practical implementations of concurrent systems."
+
+The Actor Model was proposed by Carl Hewitt, Peter Bishop, and Richard Steiger and is inspired by several characteristics of the physical world.
+
+Although it emerged in the 70s of the last century, only in the previous two decades of our century has this model gained strength in the software engineering communities due to the massive amount of existing data and the performance and distribution requirements of the most current applications.
+
+For more information about the Actor Model, see the following links:
+
+https://en.wikipedia.org/wiki/Actor_model
+
+https://codesync.global/media/almost-actors-comparing-pony-language-to-beam-languages-erlang-elixir/
+
+https://www.infoworld.com/article/2077999/understanding-actor-concurrency--part-1--actors-in-erlang.html
+
+https://doc.akka.io/docs/akka/current/general/actors.html
+
+### Virtual Actors
+
+In the context of the Virtual Actor paradigm, actors possess the inherent ability to seamlessly retain their state. The underlying framework dynamically manages the allocation of actors to specific nodes. If a node happens to experience an outage, the framework automatically revives the affected actor on an alternate node. This process of revival maintains data integrity as actors are inherently designed to preserve their state. Interruptions to availability are minimized during this seamless transition, contingent on the actors correctly implementing their state preservation mechanisms.
+
+The Virtual Actor model offers several merits:
+
+* **Scalability**: The system can effortlessly accommodate a higher number of actor instances by introducing additional nodes.
+
+* **Availability**: In case of a node failure, actors swiftly and nearly instantly regenerate on another node, all while safeguarding their state from loss.
