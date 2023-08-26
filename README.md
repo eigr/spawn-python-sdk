@@ -373,8 +373,10 @@ Forwards and pipes do not have an upper thread limit other than the request time
 ### State Management
 
 The Spawn runtime handles the internal state of your actors. It is he who maintains its state based on the types of actors and configurations that you, the developer, have made.
-The persistence of the state of the actors happens through snapshots that follow the Write Behind pattern during the period in which the Actor is active and Write Ahead during the moment of the Actor's deactivation. That is, data is saved at regular intervals asynchronously while the Actor is active and once synchronously when the Actor suffers a deactivation, when it is turned off.
-These snapshots happen from time to time. And this time is configurable through the snapshot_timetou property of the ActorSettings class. However, you can tell the Spawn runtime that you want it to persist the data immediately synchronously after executing an Action. And this can be done in the following way:
+
+The persistence of the state of the actors happens through snapshots that follow the [Write Behind Pattern](https://redisson.org/glossary/write-through-and-write-behind-caching.html) during the period in which the Actor is active and [Write Ahead](https://martinfowler.com/articles/patterns-of-distributed-systems/wal.html) during the moment of the Actor's deactivation. That is, data is saved at regular intervals asynchronously while the Actor is active and once synchronously when the Actor suffers a deactivation, when it is turned off.
+
+These snapshots happen from time to time. And this time is configurable through the ***snapshot_timeout*** property of the ***ActorSettings*** class. However, you can tell the Spawn runtime that you want it to persist the data immediately synchronously after executing an Action. And this can be done in the following way:
 
 Example:
 
