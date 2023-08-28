@@ -15,7 +15,7 @@ Python User Language Support for [Spawn](https://github.com/eigr/spawn).
 4. [Using Actors](#using-actors)
    - [Call Named Actors](#call-named-actors)
    - [Call Unnamed Actors](#call-unnamed-actors)
-   - [Async and other options](#async-and-other-options)
+   - [Async and other options](#async-calls-and-other-options)
 5. [Deploy](#deploy)
    - [Packing with Containers](#packing-with-containers)
    - [Defining an ActorSytem](#defining-an-actorsytem)
