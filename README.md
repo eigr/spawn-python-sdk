@@ -442,7 +442,6 @@ In the sections below we will give some examples of how to invoke different type
 To invoke an actor named like the one we defined in section [Getting Started](#getting-started) we could do as follows:
 
 ```python
-# Get abstract actor reference called mike
 actor: ActorRef = Spawn.create_actor_ref(
     system="spawn-system",
     actor_name="joe"
